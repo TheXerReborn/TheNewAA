@@ -38,7 +38,10 @@ pcall(function()
         Auto_Upgrade_Unit = false,
         Select_To_Upgrade = "All Unit",
         Feed_Easter = false,
-        Claim_Easter = false
+        Claim_Easter = false,
+		Summon_Unit = false,
+		Select_Banner = "Legacy",
+		Select_Amount_Banner = "1"
     }
 end)
 
