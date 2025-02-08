@@ -3210,19 +3210,35 @@ end)
 
 
 Main:AddSeperatorRight("Summon")
-Main:AddDropdownR("Select Banner",{"SakaMoTo Day","CismasEvent","Speceor","Legacy"},_G.SST.Select_Banner,function(a)
+Main:AddDropdownR("Select Banner",{"Sakamoto Event","HolidayStars Event","Special","Legacy"},_G.SST.Select_Banner,function(a)
 	Select_Banner = a
 	_G.SST.Select_Banner = Select_Banner
 SS()
+	if _G.SST.Select_Banner == "Sakamoto Event" then
+	_G.Banner_Select = "SakamotoEvent"
+	elseif _G.SST.Select_Banner == "HolidayStars Event" then
+	_G.Banner_Select = "Christmas2024"
+	elseif _G.SST.Select_Banner == "Special" then
+	_G.Banner_Select = "EventClover"
+	elseif _G.SST.Select_Banner == "Legacy" then
+	_G.Banner_Select = "Legacy"
+	end
 end)
 Main:AddDropdownR("Select Amount Banner",{"10","1","ticket"},_G.SST.Select_Amount_Banner,function(a)
 	Select_Amount_Banner = a
 	_G.SST.Select_Amount_Banner = Select_Amount_Banner
 SS()
+if _G.SST.Select_Amount_Banner == "10" then
+	_G.Amount_Banner = "Gams10"
+elseif _G.SST.Select_Amount_Banner == "1" then
+	_G.Amount_Banner = "Gams1"
+elseif _G.SST.Select_Amount_Banner == "ticket" then
+	_G.Amount_Banner = "ticket"
+end
 end)
 Main:AddToggleR("Summon Unit",_G.SST.Summon_Unit,function(a)
 	Summon_Unit = a
-	_G.SST.Summon_Unit =- Summon_Unit
+	_G.SST.Summon_Unit = Summon_Unit
 	SS()
 end)
 
@@ -3230,7 +3246,7 @@ spawn(function()
 	while wait() do
 		pcall(function()
 			if _G.SST.Summon_Unit then
-				game:GetService("ReplicatedStorage").endpoints.client_to_server.buy_from_banner:InvokeServer(_G.SST.Select_Banner,_G.SST.Select_Amount_Banner)
+				game:GetService("ReplicatedStorage").endpoints.client_to_server.buy_from_banner:InvokeServer(_G.Banner_Select,_G.Amount_Banner)
 			end
 		end)
 	end
@@ -3373,7 +3389,6 @@ spawn(function()
 		pcall(function()
 			if _G.SST.Claim_Easter then
 				game:GetService("ReplicatedStorage").endpoints.client_to_server.claim_easter_meter:InvokeServer()
-				_G.SST.Claim_Easter = false
 			end
 		end)
 	end
@@ -3923,7 +3938,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 
-Update:AddNotification('Hello  '..game.Players.LocalPlayer.Name)
+Update:AddNotification('Hello  ['..game.Players.LocalPlayer.Name ']')
 -- ฟังก์ชันเพื่อตรวจสอบและสร้างไฟล์ข้อมูลผู้เล่น
 -- รับบริการที่ต้องใช้
 local HttpService = game:GetService("HttpService")
