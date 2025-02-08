@@ -2213,33 +2213,38 @@ local function createSlider(parent, text, min, max, set, callback)
     UICorner_2.CornerRadius = UDim.new(0, 5)
     UICorner_2.Parent = TextBox
 
-    local mouse = game.Players.LocalPlayer:GetMouse()
     local uis = game:GetService("UserInputService")
 
-    AHEHE.MouseButton1Down:Connect(function()
-        local function updateSlider()
-            local Value = math.floor((((tonumber(max) - tonumber(min)) / 260) * bar1.AbsoluteSize.X) + tonumber(min))
-            pcall(callback, Value)
-            TextBox.Text = Value
+    local function updateSlider(input)
+        local pos = math.clamp(input.Position.X - bar.AbsolutePosition.X, 0, 260)
+        bar1.Size = UDim2.new(0, pos, 0, 5)
+        circlebar.Position = UDim2.new(0, pos - 2, 0, -3)
+
+        local Value = math.floor(((max - min) / 260) * pos + min)
+        TextBox.Text = Value
+        pcall(callback, Value)
+    end
+
+    AHEHE.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            updateSlider(input)
+
+            local moveConnection
+            local releaseConnection
+
+            moveConnection = uis.InputChanged:Connect(function(movingInput)
+                if movingInput.UserInputType == Enum.UserInputType.MouseMovement or movingInput.UserInputType == Enum.UserInputType.Touch then
+                    updateSlider(movingInput)
+                end
+            end)
+
+            releaseConnection = uis.InputEnded:Connect(function(endedInput)
+                if endedInput.UserInputType == Enum.UserInputType.MouseButton1 or endedInput.UserInputType == Enum.UserInputType.Touch then
+                    moveConnection:Disconnect()
+                    releaseConnection:Disconnect()
+                end
+            end)
         end
-
-        local moveconnection
-        local releaseconnection
-
-        moveconnection = mouse.Move:Connect(function()
-            local newSize = math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 260)
-            bar1.Size = UDim2.new(0, newSize, 0, 5)
-            circlebar.Position = UDim2.new(0, newSize - 2, 0, -3)
-            updateSlider()
-        end)
-
-        releaseconnection = uis.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                moveconnection:Disconnect()
-                releaseconnection:Disconnect()
-                updateSlider()
-            end
-        end)
     end)
 
     TextBox.FocusLost:Connect(function()
@@ -3669,7 +3674,7 @@ local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
 -- กำหนดชื่อไฟล์สำหรับบันทึกข้อมูลของผู้เล่น
-local fileName = "AA [" .. localPlayer.Name .. "].json"
+local fileName = "AA" .. localPlayer.Name .. ".json"
 
 -- ฟังก์ชันสำหรับสร้างข้อมูลเริ่มต้นจาก UnitFrames
 local function createInitialData()
