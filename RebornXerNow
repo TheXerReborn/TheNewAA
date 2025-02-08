@@ -2127,422 +2127,138 @@ return dropfunc1
 end
 
 
-function main:AddSliderLeft(text,min,max,set,config,callback)
-				local config = min or max or set
-				local Slider = Instance.new("Frame")
-				local slidercorner = Instance.new("UICorner")
-				local sliderr = Instance.new("Frame")
-				local sliderrcorner = Instance.new("UICorner")
-				local SliderLabel = Instance.new("TextLabel")
-				local HAHA = Instance.new("Frame")
-				local AHEHE = Instance.new("TextButton")
-				local bar = Instance.new("Frame")
-				local bar1 = Instance.new("Frame")
-				local bar1corner = Instance.new("UICorner")
-				local barcorner = Instance.new("UICorner")
-				local circlebar = Instance.new("Frame")
-				local UICorner = Instance.new("UICorner")
-				local slidervalue = Instance.new("Frame")
-				local valuecorner = Instance.new("UICorner")
-				local TextBox = Instance.new("TextBox")
-				local UICorner_2 = Instance.new("UICorner")
-	
-				Slider.Name = "Slider"
-				Slider.Parent = MainFramePage
-				Slider.BackgroundColor3 = _G.Color
-				Slider.BackgroundTransparency = 0
-				Slider.Size = UDim2.new(0, 280, 0, 51)
-	
-				slidercorner.CornerRadius = UDim.new(0, 5)
-				slidercorner.Name = "slidercorner"
-				slidercorner.Parent = Slider
-	
-				sliderr.Name = "sliderr"
-				sliderr.Parent = Slider
-				sliderr.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-				sliderr.Position = UDim2.new(0, 1, 0, 1)
-				sliderr.Size = UDim2.new(0, 278, 0, 49)
-	
-				sliderrcorner.CornerRadius = UDim.new(0, 5)
-				sliderrcorner.Name = "sliderrcorner"
-				sliderrcorner.Parent = sliderr
-	
-				SliderLabel.Name = "SliderLabel"
-				SliderLabel.Parent = sliderr
-				SliderLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-				SliderLabel.BackgroundTransparency = 1.000
-				SliderLabel.Position = UDim2.new(0, 15, 0, 0)
-				SliderLabel.Size = UDim2.new(0, 100, 0, 26)
-				SliderLabel.Font = Enum.Font.Code
-				SliderLabel.Text = text
-				SliderLabel.TextColor3 = Color3.fromRGB(225, 225, 225)
-				SliderLabel.TextSize = 16.000
-				SliderLabel.TextTransparency = 0
-				SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
-	
-				HAHA.Name = "HAHA"
-				HAHA.Parent = sliderr
-				HAHA.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-				HAHA.BackgroundTransparency = 1.000
-				HAHA.Size = UDim2.new(0, 468, 0, 29)
-	
-				AHEHE.Name = "AHEHE"
-				AHEHE.Parent = sliderr
-				AHEHE.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-				AHEHE.BackgroundTransparency = 1.000
-				AHEHE.Position = UDim2.new(0, 10, 0, 35)
-				AHEHE.Size = UDim2.new(0, 260, 0, 5)
-				AHEHE.Font = Enum.Font.Code
-				AHEHE.Text = ""
-				AHEHE.TextColor3 = Color3.fromRGB(0, 0, 0)
-				AHEHE.TextSize = 14.000
-	
-				bar.Name = "bar"
-				bar.Parent = AHEHE
-				bar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-				bar.Size = UDim2.new(0, 260, 0, 5)
-	
-				bar1.Name = "bar1"
-				bar1.Parent = bar
-				bar1.BackgroundColor3 = _G.Color
-				bar1.BackgroundTransparency = 0
-				bar1.Size = UDim2.new(set/max, 0, 0, 5)
-	
-				bar1corner.CornerRadius = UDim.new(0, 5)
-				bar1corner.Name = "bar1corner"
-				bar1corner.Parent = bar1
-	
-				barcorner.CornerRadius = UDim.new(0, 5)
-				barcorner.Name = "barcorner"
-				barcorner.Parent = bar
-	
-				circlebar.Name = "circlebar"
-				circlebar.Parent = bar1
-				circlebar.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
-				circlebar.Position = UDim2.new(1, -2, 0, -3)
-				circlebar.Size = UDim2.new(0, 10, 0, 10)
-	
-				UICorner.CornerRadius = UDim.new(0, 100)
-				UICorner.Parent = circlebar
-	
-				slidervalue.Name = "slidervalue"
-				slidervalue.Parent = sliderr
-				slidervalue.BackgroundColor3 = _G.Color
-				slidervalue.BackgroundTransparency = 0
-				slidervalue.Position = UDim2.new(0, 220, 0, 5)
-				slidervalue.Size = UDim2.new(0, 50, 0, 15)
-	
-				valuecorner.CornerRadius = UDim.new(0, 5)
-				valuecorner.Name = "valuecorner"
-				valuecorner.Parent = slidervalue
-	
-				TextBox.Parent = slidervalue
-				TextBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-				TextBox.Position = UDim2.new(0, 1, 0, 1)
-				TextBox.Size = UDim2.new(0, 48, 0, 13)
-				TextBox.Font = Enum.Font.Code
-				TextBox.TextColor3 = Color3.fromRGB(225, 225, 225)
-				TextBox.TextSize = 9.000
-				TextBox.Text = set
-				TextBox.TextTransparency = 0
-	
-				UICorner_2.CornerRadius = UDim.new(0, 5)
-				UICorner_2.Parent = TextBox
-	
-				local mouse = game.Players.LocalPlayer:GetMouse()
-				local uis = game:GetService("UserInputService")
-	
-				if Value == nil then
-					Value = set
-					pcall(function()
-						callback(Value)
-					end)
-				end
-				
-				AHEHE.MouseButton1Down:Connect(function()
-					Value = math.floor((((tonumber(max) - tonumber(min)) / 260) * bar1.AbsoluteSize.X) + tonumber(min)) or 0
-					pcall(function()
-						callback(Value)
-					end)
-					TweenService:Create(
-						bar1,
-						TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-						{Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 260), 0, 5)} -- UDim2.new(0, 128, 0, 25)
-					):Play()
-					--bar1.Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 448), 0, 5)
-					TweenService:Create(
-						circlebar,
-						TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-						{Position =  UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 260), 0, -3)} -- UDim2.new(0, 128, 0, 25)
-					):Play()
-					--circlebar.Position = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 438), 0, -3)
-					moveconnection = mouse.Move:Connect(function()
-						TextBox.Text = Value
-						Value = math.floor((((tonumber(max) - tonumber(min)) / 260) * bar1.AbsoluteSize.X) + tonumber(min))
-						pcall(function()
-							callback(Value)
-						end)
-						TweenService:Create(
-							bar1,
-							TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-							{Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 260), 0, 5)} -- UDim2.new(0, 128, 0, 25)
-						):Play()
-						--bar1.Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 448), 0, 5)
-						TweenService:Create(
-							circlebar,
-							TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-							{Position =  UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 260), 0, -3)} -- UDim2.new(0, 128, 0, 25)
-						):Play()
-						--circlebar.Position = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 438), 0, -3)
-					end)
-					releaseconnection = uis.InputEnded:Connect(function(Mouse)
-						if Mouse.UserInputType == Enum.UserInputType.MouseButton1 then
-							Value = math.floor((((tonumber(max) - tonumber(min)) / 260) * bar1.AbsoluteSize.X) + tonumber(min))
-							pcall(function()
-								callback(Value)
-							end)
-							TweenService:Create(
-								bar1,
-								TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-								{Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 260), 0, 5)} -- UDim2.new(0, 128, 0, 25)
-							):Play()
-							--bar1.Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 448), 0, 5)
-							TweenService:Create(
-								circlebar,
-								TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-								{Position =  UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 260), 0, -3)} -- UDim2.new(0, 128, 0, 25)
-							):Play()
-							--circlebar.Position = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 438), 0, -3)
-							moveconnection:Disconnect()
-							releaseconnection:Disconnect()
-						end
-					end)
-				end)
-				releaseconnection = uis.InputEnded:Connect(function(Mouse)
-					if Mouse.UserInputType == Enum.UserInputType.MouseButton1 then
-						Value = math.floor((((tonumber(max) - tonumber(min)) / 260) * bar1.AbsoluteSize.X) + tonumber(min))
-						TextBox.Text = Value
-					end
-				end)
-	
-				TextBox.FocusLost:Connect(function()
-					if tonumber(TextBox.Text) > max then
-						TextBox.Text  = max
-					end
-					bar1.Size = UDim2.new((TextBox.Text or 0) / max, 0, 0, 5)
-					circlebar.Position = UDim2.new(1, -2, 0, -3)
-					TextBox.Text = tostring(TextBox.Text and math.floor( (TextBox.Text / max) * (max - min) + min) )
-					pcall(callback, TextBox.Text)
-				end)
-			end
+local function createSlider(parent, text, min, max, set, callback)
+    local Slider = Instance.new("Frame")
+    local slidercorner = Instance.new("UICorner")
+    local sliderr = Instance.new("Frame")
+    local sliderrcorner = Instance.new("UICorner")
+    local SliderLabel = Instance.new("TextLabel")
+    local AHEHE = Instance.new("TextButton")
+    local bar = Instance.new("Frame")
+    local bar1 = Instance.new("Frame")
+    local bar1corner = Instance.new("UICorner")
+    local circlebar = Instance.new("Frame")
+    local UICorner = Instance.new("UICorner")
+    local slidervalue = Instance.new("Frame")
+    local valuecorner = Instance.new("UICorner")
+    local TextBox = Instance.new("TextBox")
+    local UICorner_2 = Instance.new("UICorner")
 
-function main:AddSliderRight(text,min,max,set,callback)
-				local Slider = Instance.new("Frame")
-				local slidercorner = Instance.new("UICorner")
-				local sliderr = Instance.new("Frame")
-				local sliderrcorner = Instance.new("UICorner")
-				local SliderLabel = Instance.new("TextLabel")
-				local HAHA = Instance.new("Frame")
-				local AHEHE = Instance.new("TextButton")
-				local bar = Instance.new("Frame")
-				local bar1 = Instance.new("Frame")
-				local bar1corner = Instance.new("UICorner")
-				local barcorner = Instance.new("UICorner")
-				local circlebar = Instance.new("Frame")
-				local UICorner = Instance.new("UICorner")
-				local slidervalue = Instance.new("Frame")
-				local valuecorner = Instance.new("UICorner")
-				local TextBox = Instance.new("TextBox")
-				local UICorner_2 = Instance.new("UICorner")
-	
-				Slider.Name = "Slider"
-				Slider.Parent = MainFramePage2
-				Slider.BackgroundColor3 = _G.Color
-				Slider.BackgroundTransparency = 0
-				Slider.Size = UDim2.new(0, 280, 0, 51)
-	
-				slidercorner.CornerRadius = UDim.new(0, 5)
-				slidercorner.Name = "slidercorner"
-				slidercorner.Parent = Slider
-	
-				sliderr.Name = "sliderr"
-				sliderr.Parent = Slider
-				sliderr.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-				sliderr.Position = UDim2.new(0, 1, 0, 1)
-				sliderr.Size = UDim2.new(0, 278, 0, 49)
-	
-				sliderrcorner.CornerRadius = UDim.new(0, 5)
-				sliderrcorner.Name = "sliderrcorner"
-				sliderrcorner.Parent = sliderr
-	
-				SliderLabel.Name = "SliderLabel"
-				SliderLabel.Parent = sliderr
-				SliderLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-				SliderLabel.BackgroundTransparency = 1.000
-				SliderLabel.Position = UDim2.new(0, 15, 0, 0)
-				SliderLabel.Size = UDim2.new(0, 100, 0, 26)
-				SliderLabel.Font = Enum.Font.Code
-				SliderLabel.Text = text
-				SliderLabel.TextColor3 = Color3.fromRGB(225, 225, 225)
-				SliderLabel.TextSize = 16.000
-				SliderLabel.TextTransparency = 0
-				SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
-	
-				HAHA.Name = "HAHA"
-				HAHA.Parent = sliderr
-				HAHA.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-				HAHA.BackgroundTransparency = 1.000
-				HAHA.Size = UDim2.new(0, 468, 0, 29)
-	
-				AHEHE.Name = "AHEHE"
-				AHEHE.Parent = sliderr
-				AHEHE.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-				AHEHE.BackgroundTransparency = 1.000
-				AHEHE.Position = UDim2.new(0, 10, 0, 35)
-				AHEHE.Size = UDim2.new(0, 260, 0, 5)
-				AHEHE.Font = Enum.Font.Code
-				AHEHE.Text = ""
-				AHEHE.TextColor3 = Color3.fromRGB(0, 0, 0)
-				AHEHE.TextSize = 14.000
-	
-				bar.Name = "bar"
-				bar.Parent = AHEHE
-				bar.BackgroundColor3 = Color3.fromRGB(45,45,45)
-				bar.Size = UDim2.new(0, 260, 0, 5)
-	
-				bar1.Name = "bar1"
-				bar1.Parent = bar
-				bar1.BackgroundColor3 = _G.Color
-				bar1.BackgroundTransparency = 0
-				bar1.Size = UDim2.new(set/max, 0, 0, 5)
-	
-				bar1corner.CornerRadius = UDim.new(0, 5)
-				bar1corner.Name = "bar1corner"
-				bar1corner.Parent = bar1
-	
-				barcorner.CornerRadius = UDim.new(0, 5)
-				barcorner.Name = "barcorner"
-				barcorner.Parent = bar
-	
-				circlebar.Name = "circlebar"
-				circlebar.Parent = bar1
-				circlebar.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
-				circlebar.Position = UDim2.new(1, -2, 0, -3)
-				circlebar.Size = UDim2.new(0, 10, 0, 10)
-	
-				UICorner.CornerRadius = UDim.new(0, 100)
-				UICorner.Parent = circlebar
-	
-				slidervalue.Name = "slidervalue"
-				slidervalue.Parent = sliderr
-				slidervalue.BackgroundColor3 = _G.Color
-				slidervalue.BackgroundTransparency = 0
-				slidervalue.Position = UDim2.new(0, 220, 0, 5)
-				slidervalue.Size = UDim2.new(0, 50, 0, 15)
-	
-				valuecorner.CornerRadius = UDim.new(0, 5)
-				valuecorner.Name = "valuecorner"
-				valuecorner.Parent = slidervalue
-	
-				TextBox.Parent = slidervalue
-				TextBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-				TextBox.Position = UDim2.new(0, 1, 0, 1)
-				TextBox.Size = UDim2.new(0, 48, 0, 13)
-				TextBox.Font = Enum.Font.Code
-				TextBox.TextColor3 = Color3.fromRGB(225, 225, 225)
-				TextBox.TextSize = 9.000
-				TextBox.Text = set
-				TextBox.TextTransparency = 0
-	
-				UICorner_2.CornerRadius = UDim.new(0, 5)
-				UICorner_2.Parent = TextBox
-	
-				local mouse = game.Players.LocalPlayer:GetMouse()
-				local uis = game:GetService("UserInputService")
-	
-				if Value == nil then
-					Value = set
-					pcall(function()
-						callback(Value)
-					end)
-				end
-				
-				AHEHE.MouseButton1Down:Connect(function()
-					Value = math.floor((((tonumber(max) - tonumber(min)) / 260) * bar1.AbsoluteSize.X) + tonumber(min)) or 0
-					pcall(function()
-						callback(Value)
-					end)
-					TweenService:Create(
-						bar1,
-						TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-						{Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 260), 0, 5)} -- UDim2.new(0, 128, 0, 25)
-					):Play()
-					--bar1.Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 448), 0, 5)
-					TweenService:Create(
-						circlebar,
-						TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-						{Position =  UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 260), 0, -3)} -- UDim2.new(0, 128, 0, 25)
-					):Play()
-					--circlebar.Position = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 438), 0, -3)
-					moveconnection = mouse.Move:Connect(function()
-						TextBox.Text = Value
-						Value = math.floor((((tonumber(max) - tonumber(min)) / 260) * bar1.AbsoluteSize.X) + tonumber(min))
-						pcall(function()
-							callback(Value)
-						end)
-						TweenService:Create(
-							bar1,
-							TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-							{Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 260), 0, 5)} -- UDim2.new(0, 128, 0, 25)
-						):Play()
-						--bar1.Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 448), 0, 5)
-						TweenService:Create(
-							circlebar,
-							TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-							{Position =  UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 260), 0, -3)} -- UDim2.new(0, 128, 0, 25)
-						):Play()
-						--circlebar.Position = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 438), 0, -3)
-					end)
-					releaseconnection = uis.InputEnded:Connect(function(Mouse)
-						if Mouse.UserInputType == Enum.UserInputType.MouseButton1 then
-							Value = math.floor((((tonumber(max) - tonumber(min)) / 260) * bar1.AbsoluteSize.X) + tonumber(min))
-							pcall(function()
-								callback(Value)
-							end)
-							TweenService:Create(
-								bar1,
-								TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-								{Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 260), 0, 5)} -- UDim2.new(0, 128, 0, 25)
-							):Play()
-							--bar1.Size = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 448), 0, 5)
-							TweenService:Create(
-								circlebar,
-								TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-								{Position =  UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 260), 0, -3)} -- UDim2.new(0, 128, 0, 25)
-							):Play()
-							--circlebar.Position = UDim2.new(0, math.clamp(mouse.X - bar1.AbsolutePosition.X - 2, 0, 438), 0, -3)
-							moveconnection:Disconnect()
-							releaseconnection:Disconnect()
-						end
-					end)
-				end)
-				releaseconnection = uis.InputEnded:Connect(function(Mouse)
-					if Mouse.UserInputType == Enum.UserInputType.MouseButton1 then
-						Value = math.floor((((tonumber(max) - tonumber(min)) / 260) * bar1.AbsoluteSize.X) + tonumber(min))
-						TextBox.Text = Value
-					end
-				end)
-	
-				TextBox.FocusLost:Connect(function()
-					if tonumber(TextBox.Text) > max then
-						TextBox.Text  = max
-					end
-					bar1.Size = UDim2.new((TextBox.Text or 0) / max, 0, 0, 5)
-					circlebar.Position = UDim2.new(1, -2, 0, -3)
-					TextBox.Text = tostring(TextBox.Text and math.floor( (TextBox.Text / max) * (max - min) + min) )
-					pcall(callback, TextBox.Text)
-				end)
-			end
+    Slider.Parent = parent
+    Slider.BackgroundColor3 = _G.Color
+    Slider.Size = UDim2.new(0, 280, 0, 51)
+
+    slidercorner.CornerRadius = UDim.new(0, 5)
+    slidercorner.Parent = Slider
+
+    sliderr.Parent = Slider
+    sliderr.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    sliderr.Position = UDim2.new(0, 1, 0, 1)
+    sliderr.Size = UDim2.new(0, 278, 0, 49)
+
+    sliderrcorner.CornerRadius = UDim.new(0, 5)
+    sliderrcorner.Parent = sliderr
+
+    SliderLabel.Parent = sliderr
+    SliderLabel.BackgroundTransparency = 1.0
+    SliderLabel.Position = UDim2.new(0, 15, 0, 0)
+    SliderLabel.Size = UDim2.new(0, 100, 0, 26)
+    SliderLabel.Font = Enum.Font.Code
+    SliderLabel.Text = text
+    SliderLabel.TextColor3 = Color3.fromRGB(225, 225, 225)
+    SliderLabel.TextSize = 16.0
+    SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    AHEHE.Parent = sliderr
+    AHEHE.BackgroundTransparency = 1.0
+    AHEHE.Position = UDim2.new(0, 10, 0, 35)
+    AHEHE.Size = UDim2.new(0, 260, 0, 5)
+
+    bar.Parent = AHEHE
+    bar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    bar.Size = UDim2.new(0, 260, 0, 5)
+
+    bar1.Parent = bar
+    bar1.BackgroundColor3 = _G.Color
+    bar1.Size = UDim2.new(set / max, 0, 0, 5)
+
+    bar1corner.CornerRadius = UDim.new(0, 5)
+    bar1corner.Parent = bar1
+
+    circlebar.Parent = bar1
+    circlebar.BackgroundColor3 = Color3.fromRGB(225, 225, 225)
+    circlebar.Position = UDim2.new(1, -2, 0, -3)
+    circlebar.Size = UDim2.new(0, 10, 0, 10)
+
+    UICorner.CornerRadius = UDim.new(0, 100)
+    UICorner.Parent = circlebar
+
+    slidervalue.Parent = sliderr
+    slidervalue.BackgroundColor3 = _G.Color
+    slidervalue.Position = UDim2.new(0, 220, 0, 5)
+    slidervalue.Size = UDim2.new(0, 50, 0, 15)
+
+    valuecorner.CornerRadius = UDim.new(0, 5)
+    valuecorner.Parent = slidervalue
+
+    TextBox.Parent = slidervalue
+    TextBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    TextBox.Position = UDim2.new(0, 1, 0, 1)
+    TextBox.Size = UDim2.new(0, 48, 0, 13)
+    TextBox.Font = Enum.Font.Code
+    TextBox.TextColor3 = Color3.fromRGB(225, 225, 225)
+    TextBox.TextSize = 9.0
+    TextBox.Text = set
+
+    UICorner_2.CornerRadius = UDim.new(0, 5)
+    UICorner_2.Parent = TextBox
+
+    local mouse = game.Players.LocalPlayer:GetMouse()
+    local uis = game:GetService("UserInputService")
+
+    AHEHE.MouseButton1Down:Connect(function()
+        local function updateSlider()
+            local Value = math.floor((((tonumber(max) - tonumber(min)) / 260) * bar1.AbsoluteSize.X) + tonumber(min))
+            pcall(callback, Value)
+            TextBox.Text = Value
+        end
+
+        local moveconnection
+        local releaseconnection
+
+        moveconnection = mouse.Move:Connect(function()
+            local newSize = math.clamp(mouse.X - bar1.AbsolutePosition.X, 0, 260)
+            bar1.Size = UDim2.new(0, newSize, 0, 5)
+            circlebar.Position = UDim2.new(0, newSize - 2, 0, -3)
+            updateSlider()
+        end)
+
+        releaseconnection = uis.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                moveconnection:Disconnect()
+                releaseconnection:Disconnect()
+                updateSlider()
+            end
+        end)
+    end)
+
+    TextBox.FocusLost:Connect(function()
+        local Value = tonumber(TextBox.Text) or set
+        if Value < min then Value = min end
+        if Value > max then Value = max end
+        TextBox.Text = Value
+        bar1.Size = UDim2.new((Value - min) / (max - min), 0, 0, 5)
+        pcall(callback, Value)
+    end)
+end
+
+function main:AddSliderLeft(text, min, max, set, callback)
+    createSlider(MainFramePage, text, min, max, set, callback)
+end
+
+function main:AddSliderRight(text, min, max, set, callback)
+    createSlider(MainFramePage2, text, min, max, set, callback)
+end
 
 
 
@@ -3229,9 +2945,9 @@ Main:AddDropdownR("Select Amount Banner",{"10","1","ticket"},_G.SST.Select_Amoun
 	_G.SST.Select_Amount_Banner = Select_Amount_Banner
 SS()
 if _G.SST.Select_Amount_Banner == "10" then
-	_G.Amount_Banner = "Gams10"
+	_G.Amount_Banner = "gems10"
 elseif _G.SST.Select_Amount_Banner == "1" then
-	_G.Amount_Banner = "Gams1"
+	_G.Amount_Banner = "gems1"
 elseif _G.SST.Select_Amount_Banner == "ticket" then
 	_G.Amount_Banner = "ticket"
 end
@@ -3764,26 +3480,33 @@ local function sendWebhook(Name, GemRewards, XpRewards, GameTime, player)
     end
 end
 
+local debounce = false -- ตัวแปรป้องกันการส่งซ้ำ
+
 RunService.Heartbeat:Connect(function()
-    pcall(function()
-        if _G.SST.Sent_WebHook then
-            local player = Players.LocalPlayer
-            local resultsUI = player.PlayerGui:FindFirstChild("ResultsUI")
-            
-            if resultsUI and resultsUI.Enabled then
-                local Name = player.Name
-                local GemRewards = resultsUI.Holder.LevelRewards.ScrollingFrame.GemReward.Main.Amount.Text
-                local XpRewards = resultsUI.Holder.LevelRewards.ScrollingFrame.XPReward.Main.Amount.Text
-                local GameTime = resultsUI.Holder.Middle.Timer.Text
+    if not debounce then
+        debounce = true
+        pcall(function()
+            if _G.SST.Sent_WebHook then
+                local player = Players.LocalPlayer
+                local resultsUI = player.PlayerGui:FindFirstChild("ResultsUI")
+                
+                if resultsUI and resultsUI.Enabled then
+                    local Name = player.Name
+                    local GemRewards = resultsUI.Holder.LevelRewards.ScrollingFrame.GemReward.Main.Amount.Text
+                    local XpRewards = resultsUI.Holder.LevelRewards.ScrollingFrame.XPReward.Main.Amount.Text
+                    local GameTime = resultsUI.Holder.Middle.Timer.Text
 
-                -- Call the function to send the webhook
-                sendWebhook(Name, GemRewards, XpRewards, GameTime, player)
+                    -- Reset the webhook flag ก่อนส่ง
+                    _G.SST.Sent_WebHook = false
 
-                -- Reset the webhook flag
-                _G.SST.Sent_WebHook = false
+                    -- Call the function to send the webhook
+                    sendWebhook(Name, GemRewards, XpRewards, GameTime, player)
+                end
             end
-        end
-    end)
+        end)
+        task.wait(1) -- รอ 1 วินาทีป้องกันส่งซ้ำ
+        debounce = false
+    end
 end)
 
 
@@ -3877,27 +3600,28 @@ local function optimizePartsAndEffects(descendants)
                 or obj:IsA("TrussPart") or obj:IsA("MeshPart") then
                 obj.Material = Enum.Material.Plastic
                 obj.Reflectance = 0
+                obj.Transparency = 0.5 -- ทำให้จางลงแทนการลบ
                 if obj:IsA("MeshPart") then
                     obj.TextureID = ""
                 end
             elseif obj:IsA("Decal") or obj:IsA("Texture") then
-                obj:Destroy()
+                obj.Transparency = 1 -- ซ่อนไว้แทนการลบ
             elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
-                obj.Lifetime = NumberRange.new(0)
+                obj.Enabled = false
             elseif obj:IsA("Fire") or obj:IsA("SpotLight") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
                 obj.Enabled = false
             elseif obj:IsA("Sound") then
-                obj.Playing = false
+                obj.Volume = 0 -- ปิดเสียงแทนการหยุดเล่น
             end
         end)
     end
 end
 
-local function removeUnnecessaryAccessories(descendants)
+local function disableUnnecessaryAccessories(descendants)
     for _, obj in ipairs(descendants) do
         pcall(function()
             if obj:IsA("Accessory") or obj:IsA("Clothing") then
-                obj:Destroy()
+                obj.Parent = nil -- ซ่อนแทนการลบ
             end
         end)
     end
@@ -3912,9 +3636,9 @@ RunService.Heartbeat:Connect(function()
 
             local playerGui = player:FindFirstChild("PlayerGui")
 
-            -- ลบ MessageGui
+            -- ปิดการใช้งาน MessageGui แทนการลบ
             if playerGui and playerGui:FindFirstChild("MessageGui") then
-                pcall(function() playerGui.MessageGui:Destroy() end)
+                pcall(function() playerGui.MessageGui.Enabled = false end)
             end
 
             -- ปรับค่าการตั้งค่า
@@ -3927,7 +3651,7 @@ RunService.Heartbeat:Connect(function()
             -- ปรับแต่งวัตถุและเอฟเฟกต์
             local descendants = game:GetDescendants()
             optimizePartsAndEffects(descendants)
-            removeUnnecessaryAccessories(descendants)
+            disableUnnecessaryAccessories(descendants)
 
             -- ลดคุณภาพการแสดงผล
             if settings and settings().Rendering then
@@ -3937,7 +3661,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-
 Update:AddNotification('Hello  ['..game.Players.LocalPlayer.Name ']')
 -- ฟังก์ชันเพื่อตรวจสอบและสร้างไฟล์ข้อมูลผู้เล่น
 -- รับบริการที่ต้องใช้
@@ -3946,7 +3669,7 @@ local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
 -- กำหนดชื่อไฟล์สำหรับบันทึกข้อมูลของผู้เล่น
-local fileName = "AA" .. localPlayer.Name .. ".json"
+local fileName = "AA [" .. localPlayer.Name .. "].json"
 
 -- ฟังก์ชันสำหรับสร้างข้อมูลเริ่มต้นจาก UnitFrames
 local function createInitialData()
