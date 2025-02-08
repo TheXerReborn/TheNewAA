@@ -1,10 +1,13 @@
-------------------wait load
-if not game:IsLoaded() then repeat game.Loaded:Wait() until game:IsLoaded() end
+------------------Wait Game load
+if not game:IsLoaded() then
+	repeat game.Loaded:Wait() 
+	until game:IsLoaded() 
+end
 ----------------------------------- save
 
 
 function loadcheck()
-    local fileName = "RebornXer Hub Anime Adventures" .. game.Players.LocalPlayer.Name .. ".json"
+    local fileName = "RebornXer Hub Anime Adventures [" .. game.Players.LocalPlayer.Name .. "].json"
     
     if not isfile(fileName) then
         writefile(fileName, game:GetService("HttpService"):JSONEncode(_G.SST))
@@ -40,8 +43,7 @@ pcall(function()
 end)
 
 function LoadSetting()
-    local fileName = "RebornXer Hub Anime Adventures" .. game.Players.LocalPlayer.Name .. ".json"
-    
+    local fileName = "RebornXer Hub Anime Adventures [" .. game.Players.LocalPlayer.Name .. "].json"
     if isfile(fileName) then
         local fileContent = readfile(fileName)
         local success, decoded = pcall(function()
@@ -57,7 +59,7 @@ function LoadSetting()
 end
 
 function SS()
-    local fileName = "RebornXer Hub Anime Adventures" .. game.Players.LocalPlayer.Name .. ".json"
+    local fileName = "RebornXer Hub Anime Adventures [" .. game.Players.LocalPlayer.Name .. "].json"
     
     if isfile(fileName) then
         writefile(fileName, game:GetService("HttpService"):JSONEncode(_G.SST))
@@ -70,11 +72,12 @@ loadcheck()
 LoadSetting()
 
 
----------------------------------------------------- Ui
+----------------------------------------------------   Ui
 local OCui = game.CoreGui:FindFirstChild("RebormXerOC")
 if OCui then
 	OCui:Destroy()
 end
+
 local RebornXer = Instance.new("ScreenGui")
 local Open = Instance.new("TextButton")
 local fuckshit = Instance.new("UICorner")
@@ -3203,6 +3206,32 @@ spawn(function()
 end)
 
 
+Main:AddSeperatorRight("Summon")
+Main:AddDropdownR("Select Banner",{"SakaMoTo Day","CismasEvent","Speceor","Legacy"},_G.SST.Select_Banner,function(a)
+	Select_Banner = a
+	_G.SST.Select_Banner = Select_Banner
+SS()
+end)
+Main:AddDropdownR("Select Amount Banner",{"10","1","ticket"},_G.SST.Select_Amount_Banner,function(a)
+	Select_Amount_Banner = a
+	_G.SST.Select_Amount_Banner = Select_Amount_Banner
+SS()
+end)
+Main:AddToggleR("Summon Unit",_G.SST.Summon_Unit,function(a)
+	Summon_Unit = a
+	_G.SST.Summon_Unit =- Summon_Unit
+	SS()
+end)
+
+spawn(function()
+	while wait() do
+		pcall(function()
+			if _G.SST.Summon_Unit then
+				game:GetService("ReplicatedStorage").endpoints.client_to_server.buy_from_banner:InvokeServer(_G.SST.Select_Banner,_G.SST.Select_Amount_Banner)
+			end
+		end)
+	end
+end)
 
 Main:AddSeperatorLeft("Farm")
 
