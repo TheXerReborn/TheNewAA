@@ -2925,7 +2925,7 @@ spawn(function()
             warn("Error in auto-upgrade loop: " .. tostring(err))
         end
 
-        task.wait(0.1) -- เพิ่มเวลาให้ลูปทำงานน้อยลง (ปรับได้ตามความเหมาะสม)
+       task.wait(0.03) -- รอแค่ 0.03 วินาที
     end
 end)
 
