@@ -41,7 +41,8 @@ pcall(function()
         Claim_Easter = false,
 		Summon_Unit = false,
 		Select_Banner = "Legacy",
-		Select_Amount_Banner = "1"
+		Select_Amount_Banner = "1",
+		Auto_Stars = false
     }
 end)
 
@@ -3775,8 +3776,6 @@ local function useData()
         for name, unit in pairs(_G.SeveST) do
             if unit.Equipped then
                 print(name .. " is equipped and ready for use.")
-            else
-                print(name .. " is not equipped.")
             end
 
             local upgradeCost = unit.Cost * unit.Level
