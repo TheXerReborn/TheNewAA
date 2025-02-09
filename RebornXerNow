@@ -3688,7 +3688,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-Update:AddNotification('Hello  ['..game.Players.LocalPlayer.Name ']')
 -- ฟังก์ชันเพื่อตรวจสอบและสร้างไฟล์ข้อมูลผู้เล่น
 -- รับบริการที่ต้องใช้
 local HttpService = game:GetService("HttpService")
@@ -3698,20 +3697,50 @@ local localPlayer = Players.LocalPlayer
 -- กำหนดชื่อไฟล์สำหรับบันทึกข้อมูลของผู้เล่น
 local fileName = "AA" .. localPlayer.Name .. ".json"
 
--- ฟังก์ชันสำหรับสร้างข้อมูลเริ่มต้นจาก UnitFrames
+-- ฟังก์ชันตรวจสอบว่าฟังก์ชัน `isfile()` ใช้งานได้หรือไม่
+local function safeIsFile(fileName)
+    local success, result = pcall(function() return isfile(fileName) end)
+    return success and result
+end
+
+-- ฟังก์ชันอ่านไฟล์โดยปลอดภัย
+local function safeReadFile(fileName)
+    local success, content = pcall(function() return readfile(fileName) end)
+    return success and content or nil
+end
+
+-- ฟังก์ชันเขียนไฟล์โดยปลอดภัย
+local function safeWriteFile(fileName, data)
+    local success, err = pcall(function() writefile(fileName, data) end)
+    if not success then
+        warn("เกิดข้อผิดพลาดในการเขียนไฟล์: " .. tostring(err))
+    end
+end
+
+-- ฟังก์ชันสร้างข้อมูลเริ่มต้นจาก UnitFrames
 local function createInitialData()
     local data = {}
 
-    -- เข้าถึง UnitFrames ภายใน PlayerGui ของผู้เล่น
-    local unitFramesFolder = localPlayer.PlayerGui.collection.grid.List.Outer.UnitFrames
+    -- ตรวจสอบว่ามี PlayerGui และ UnitFrames หรือไม่
+    local playerGui = localPlayer:FindFirstChild("PlayerGui")
+    local unitFramesFolder = playerGui and playerGui:FindFirstChild("collection")
+        and playerGui.collection:FindFirstChild("grid")
+        and playerGui.collection.grid:FindFirstChild("List")
+        and playerGui.collection.grid.List:FindFirstChild("Outer")
+        and playerGui.collection.grid.List.Outer:FindFirstChild("UnitFrames")
+
+    if not unitFramesFolder then
+        warn("ไม่พบ UnitFrames ใน PlayerGui")
+        return data
+    end
+
     for _, v in ipairs(unitFramesFolder:GetChildren()) do
-        if v.Name == "CollectionUnitFrame" then
-            -- ใช้ชื่อใน text label เป็น key และเก็บข้อมูลต่าง ๆ ลงในตาราง
+        if v.Name == "CollectionUnitFrame" and v:FindFirstChild("name") then
             data[v.name.Text] = {
-                Equipped = v.EquippedList.Equipped.Visible,
-                Level = tonumber(v.Main:FindFirstChild("Level").Text) or 0,
-                UUID = v._uuid.Value,
-                Cost = tonumber(v.Cost.text.Text) or 0
+                Equipped = v:FindFirstChild("EquippedList") and v.EquippedList:FindFirstChild("Equipped") and v.EquippedList.Equipped.Visible or false,
+                Level = v:FindFirstChild("Main") and v.Main:FindFirstChild("Level") and tonumber(v.Main.Level.Text) or 0,
+                UUID = v:FindFirstChild("_uuid") and v._uuid.Value or "Unknown",
+                Cost = v:FindFirstChild("Cost") and v.Cost:FindFirstChild("text") and tonumber(v.Cost.text.Text) or 0
             }
         end
     end
@@ -3719,40 +3748,41 @@ local function createInitialData()
     return data
 end
 
--- ฟังก์ชันเพื่อตรวจสอบว่ามีไฟล์ข้อมูลอยู่หรือไม่ ถ้าไม่มีก็ให้สร้างไฟล์ขึ้นมา
+-- ฟังก์ชันตรวจสอบว่ามีไฟล์ข้อมูลอยู่หรือไม่ ถ้าไม่มีให้สร้างไฟล์ใหม่
 local function checkOrCreateFile()
-    if not isfile(fileName) then
+    if not safeIsFile(fileName) then
         local initialData = createInitialData()
-        writefile(fileName, HttpService:JSONEncode(initialData))
+        safeWriteFile(fileName, HttpService:JSONEncode(initialData))
     end
 end
 
--- ฟังก์ชันสำหรับโหลดข้อมูลจากไฟล์ JSON ไปยัง _G.SeveST
+-- ฟังก์ชันโหลดข้อมูลจากไฟล์ JSON ไปยัง _G.SeveST
 local function loadData()
-    if isfile(fileName) then
-        local fileContent = readfile(fileName)
+    if not safeIsFile(fileName) then
+        checkOrCreateFile()
+        return -- ไม่ต้องโหลดซ้ำหลังสร้างไฟล์
+    end
+
+    local fileContent = safeReadFile(fileName)
+    if fileContent then
         local success, decoded = pcall(function()
             return HttpService:JSONDecode(fileContent)
         end)
         if success and type(decoded) == "table" then
             _G.SeveST = decoded
         else
-            warn("ไม่สามารถถอดรหัสข้อมูลจากไฟล์ " .. fileName .. " ได้")
+            warn("ไม่สามารถถอดรหัสข้อมูลจากไฟล์ " .. fileName)
             _G.SeveST = {}
         end
-    else
-        -- ถ้าไม่มีไฟล์ ให้สร้างและโหลดข้อมูลใหม่
-        checkOrCreateFile()
-        loadData()
     end
 end
 
--- ฟังก์ชันสำหรับบันทึกข้อมูลจาก _G.SeveST กลับไปยังไฟล์ JSON
+-- ฟังก์ชันบันทึกข้อมูลจาก _G.SeveST กลับไปยังไฟล์ JSON
 local function saveData()
-    if _G.SeveST then
-        writefile(fileName, HttpService:JSONEncode(_G.SeveST))
+    if type(_G.SeveST) == "table" and next(_G.SeveST) then
+        safeWriteFile(fileName, HttpService:JSONEncode(_G.SeveST))
     else
-        warn("ไม่มีข้อมูลใน _G.SeveST ให้บันทึก")
+        warn("ไม่มีข้อมูลที่ต้องบันทึก")
     end
 end
 
@@ -3770,7 +3800,7 @@ local function printData()
     end
 end
 
--- ฟังก์ชันตัวอย่างการใช้งานข้อมูลจาก _G.SeveST
+-- ฟังก์ชันเรียกใช้งานข้อมูลจาก _G.SeveST
 local function useData()
     if _G.SeveST then
         for name, unit in pairs(_G.SeveST) do
@@ -3786,11 +3816,11 @@ local function useData()
     end
 end
 
--- ขั้นตอนการทำงานหลัก
+-- เรียกใช้งานฟังก์ชันหลัก
 checkOrCreateFile()   -- ตรวจสอบและสร้างไฟล์ถ้ายังไม่มี
 loadData()            -- โหลดข้อมูลจากไฟล์ไปยัง _G.SeveST
 printData()           -- แสดงข้อมูลที่ได้
 useData()             -- เรียกใช้งานข้อมูลตามที่ต้องการ
 
--- หากต้องการบันทึกข้อมูลใหม่หลังจากมีการเปลี่ยนแปลงใน _G.SeveST ให้เรียกใช้ saveData()
+-- บันทึกข้อมูลใหม่หลังจากมีการเปลี่ยนแปลง
 saveData()
