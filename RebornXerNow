@@ -2925,7 +2925,7 @@ spawn(function()
             warn("Error in auto-upgrade loop: " .. tostring(err))
         end
 
-       task.wait(0.03) -- รอแค่ 0.03 วินาที
+       task.wait(0) -- รอแค่ 0.03 วินาที
     end
 end)
 
@@ -2964,7 +2964,7 @@ Main:AddToggleR("Summon Unit",_G.SST.Summon_Unit,function(a)
 end)
 
 spawn(function()
-	while wait() do
+	while task.wait(0.2) do
 		pcall(function()
 			if _G.SST.Summon_Unit then
 				game:GetService("ReplicatedStorage").endpoints.client_to_server.buy_from_banner:InvokeServer(_G.Banner_Select,_G.Amount_Banner)
