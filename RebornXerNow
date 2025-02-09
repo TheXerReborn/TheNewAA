@@ -2803,7 +2803,28 @@ end)
 	end)
 
 
-Main:AddSeperatorRight("Game")
+Main:AddSeperatorRight("Game Setting")
+
+
+Main:AddToggleR("Auto vote Stars",_G.SST.Auto_Stars,function(a)
+	Auto_Stars = a
+	_G.SST.Auto_Stars = Auto_Stars
+	SS()
+end)
+
+spawn(function()
+	while wait() do
+		pcall(function()
+			if _G.SST.Auto_Stars then
+				if game:GetService("Players").LocalPlayer.PlayerGui.VoteStart.Enabled == true then
+					game:GetService("ReplicatedStorage").endpoints.client_to_server.vote_start:InvokeServer()
+				end
+			end
+		end)
+	end
+end)
+		
+
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
