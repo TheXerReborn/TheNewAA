@@ -1355,632 +1355,286 @@ end
 		
 
 		
-		function main:AddDropdownL(droptitle, list, config, callback)
-local config = config or "Select First"
-local dropfunc = {}
-local list = list or {}
-local DropToggled = false
-local DropSizeFrame = Instance.new("Frame")
-local Frame = Instance.new("Frame")
-local UIStroke = Instance.new("UIStroke")
-local DropCover = Instance.new("Frame")
-local UICorner = Instance.new("UICorner")
-local UICorner2 = Instance.new("UICorner")
-local ImageLabel = Instance.new("ImageLabel")
-local Space = Instance.new("TextLabel")
-local Title = Instance.new("TextLabel")
-local ImageButton = Instance.new("ImageButton")
-local DropStrokeList = Instance.new("UIStroke")
-local DropTextList = Instance.new("TextLabel")
+		-- Helper function สำหรับสร้าง Dropdown
+local function createDropdown(params)
+    local parent    = params.parent or error("Parent is required")
+    local title     = params.title or "Dropdown"
+    local list      = params.list or {}
+    local default   = params.config or "Select First"
+    local callback  = params.callback or function() end
+    local style     = params.style or "L"  -- "L" หรือ "R" เพื่อปรับสไตล์
 
--- Prop --
-DropSizeFrame.Name = droptitle or "DropSizeFrame"
-DropSizeFrame.Parent = MainFramePage
-DropSizeFrame.BackgroundColor3 = _G.SectionColor
-DropSizeFrame.BackgroundTransparency = 1.000
-DropSizeFrame.Size = UDim2.new(0, 280, 0, 60)
+    local dropdown = {}
+    local toggled = false
+    local itemCount = 0
+    local frameExtra = 0  -- ส่วนเพิ่มความสูงของ frame ตามจำนวน item
 
-Frame.Name = "Frame"
-Frame.Parent = DropSizeFrame
-Frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-Frame.BorderSizePixel = 0
-Frame.Position = UDim2.new(0, 3, 0, 0)
-Frame.Size = UDim2.new(0, 278, 0, 60)
+    -- สร้าง Main Container (DropSizeFrame)
+    local dropSizeFrame = Instance.new("Frame")
+    dropSizeFrame.Name = title
+    dropSizeFrame.Parent = parent
+    dropSizeFrame.BackgroundColor3 = _G.SectionColor
+    dropSizeFrame.BackgroundTransparency = 1
+    dropSizeFrame.Size = UDim2.new(0, 280, 0, 60)
 
-UIStroke.Name = "UIStroke"
-UIStroke.Parent = Frame
-UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-UIStroke.Color = Color3.fromRGB(255,255,255)
-UIStroke.LineJoinMode = Enum.LineJoinMode.Round
-UIStroke.Thickness = 0.7
-UIStroke.Transparency = 0
-UIStroke.Enabled = true
-UIStroke.Archivable = true
+    -- สร้าง Frame ภายใน
+    local frame = Instance.new("Frame")
+    frame.Name = "Frame"
+    frame.Parent = dropSizeFrame
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    frame.BorderSizePixel = 0
+    frame.Position = UDim2.new(0, 3, 0, 0)
+    frame.Size = UDim2.new(0, 278, 0, 60)
 
-UICorner.Parent = Frame
-UICorner.CornerRadius = UDim.new(0, 3)
+    local uiStroke = Instance.new("UIStroke")
+    uiStroke.Name = "UIStroke"
+    uiStroke.Parent = frame
+    uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    uiStroke.Color = Color3.fromRGB(255, 255, 255)
+    uiStroke.LineJoinMode = Enum.LineJoinMode.Round
+    uiStroke.Thickness = 0.7
+    uiStroke.Transparency = 0
 
-DropCover.Name = "DropCover"
-DropCover.Parent = Frame
-DropCover.BackgroundColor3 = _G.BackgroundItemColor
-DropCover.BackgroundTransparency = 1.000
-DropCover.BorderSizePixel = 0
-DropCover.Position = UDim2.new(0, 0, 0, 0)
-DropCover.Size = UDim2.new(0, 202, 0, 30)
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.Parent = frame
+    uiCorner.CornerRadius = UDim.new(0, 3)
 
-ImageLabel.Name = "ImageLabel"
-ImageLabel.Parent = DropCover
-ImageLabel.BackgroundColor3 = _G.SectionColor
-ImageLabel.BackgroundTransparency = 1.000
-ImageLabel.BorderSizePixel = 0
-ImageLabel.Position = UDim2.new(0, 5, 0, 6)
-ImageLabel.Size = UDim2.new(0, 18, 0, 18)
-ImageLabel.Image = "rbxassetid://8825010231"
-ImageLabel.ImageColor3 = Color3.fromRGB(255,255,255)
+    -- สร้าง DropCover (ส่วนหัวของ dropdown)
+    local dropCover = Instance.new("Frame")
+    dropCover.Name = "DropCover"
+    dropCover.Parent = frame
+    dropCover.BackgroundColor3 = _G.BackgroundItemColor
+    dropCover.BackgroundTransparency = 1
+    dropCover.BorderSizePixel = 0
+    dropCover.Position = UDim2.new(0, 0, 0, 0)
+    dropCover.Size = UDim2.new(0, 202, 0, 30)
 
-Space.Name = "Space"
-Space.Parent = DropCover
-Space.BackgroundColor3 = _G.SectionColor
-Space.BackgroundTransparency = 1.000
-Space.Position = UDim2.new(0, 30, 0, 0)
-Space.Size = UDim2.new(0, 15, 0, 30)
-Space.Font = Enum.Font.Code
-Space.Text = "|"
-Space.TextSize = 13.000
-Space.TextColor3 = Color3.fromRGB(255,255,255)
-Space.TextXAlignment = Enum.TextXAlignment.Center
+    local imageLabel = Instance.new("ImageLabel")
+    imageLabel.Name = "ImageLabel"
+    imageLabel.Parent = dropCover
+    imageLabel.BackgroundColor3 = _G.SectionColor
+    imageLabel.BackgroundTransparency = 1
+    imageLabel.BorderSizePixel = 0
+    imageLabel.Position = UDim2.new(0, 5, 0, 6)
+    imageLabel.Size = UDim2.new(0, 18, 0, 18)
+    imageLabel.Image = "rbxassetid://8825010231"
+    imageLabel.ImageColor3 = Color3.fromRGB(255, 255, 255)
 
-Title.Name = "Title"
-Title.Parent = DropCover
-Title.BackgroundColor3 = _G.SectionColor
-Title.BackgroundTransparency = 1.000
-Title.Position = UDim2.new(0, 50, 0, 0)
-Title.Size = UDim2.new(0, 207, 0, 30)
-Title.Font = Enum.Font.Code
-Title.Text = tostring(droptitle) or "drop Title"
-Title.TextColor3 = Color3.fromRGB(255,255,255)
-Title.TextSize = 12.000
-Title.TextXAlignment = Enum.TextXAlignment.Left
+    local space = Instance.new("TextLabel")
+    space.Name = "Space"
+    space.Parent = dropCover
+    space.BackgroundColor3 = _G.SectionColor
+    space.BackgroundTransparency = 1
+    space.Position = UDim2.new(0, 30, 0, 0)
+    space.Size = UDim2.new(0, 15, 0, 30)
+    space.Font = Enum.Font.Code
+    space.Text = "|"
+    space.TextSize = 13
+    space.TextColor3 = Color3.fromRGB(255, 255, 255)
+    space.TextXAlignment = Enum.TextXAlignment.Center
 
-ImageButton.Name = "ImageButton"
-ImageButton.Parent = DropCover
-ImageButton.BackgroundColor3 = _G.WindowBackgroundColor
-ImageButton.BackgroundTransparency = 1.000
-ImageButton.Position = UDim2.new(0, 250, 0, 7)
-ImageButton.Size = UDim2.new(0, 23, 0, 18)
-ImageButton.Image = "rbxassetid://6583628103"
-ImageButton.ImageColor3 = Color3.fromRGB(51,255,255)
-ImageButton.Rotation = 180
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.Parent = dropCover
+    titleLabel.BackgroundColor3 = _G.SectionColor
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, 50, 0, 0)
+    titleLabel.Size = UDim2.new(0, 207, 0, 30)
+    titleLabel.Font = Enum.Font.Code
+    titleLabel.Text = title
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.TextSize = 12
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-DropTextList.Name = "DropTextList"
-DropTextList.Parent = Frame
-DropTextList.BackgroundColor3 = _G.BackgroundItemColor
-DropTextList.BackgroundTransparency = 1.000
-DropTextList.Position = UDim2.new(0, 3, 0, 30)
-DropTextList.Size = UDim2.new(0, 278, 0, 25)
-DropTextList.Font = Enum.Font.Code
-DropTextList.Text = v or config or"Select First"
-DropTextList.TextColor3 = Color3.fromRGB(255,255,255)
-DropTextList.TextSize = 12.000
-DropTextList.TextXAlignment = Enum.TextXAlignment.Center
+    local imageButton = Instance.new("ImageButton")
+    imageButton.Name = "ImageButton"
+    imageButton.Parent = dropCover
+    imageButton.BackgroundColor3 = _G.WindowBackgroundColor
+    imageButton.BackgroundTransparency = 1
+    imageButton.Position = UDim2.new(0, 250, 0, 7)
+    imageButton.Size = UDim2.new(0, 23, 0, 18)
+    imageButton.Image = "rbxassetid://6583628103"
+    imageButton.ImageColor3 = Color3.fromRGB(51, 255, 255)
+    imageButton.Rotation = 180
 
-UICorner2.Parent = DropTextList
-UICorner2.CornerRadius = UDim.new(0,0)
+    -- สร้าง TextList ที่แสดง item ที่ถูกเลือก
+    local dropTextList = Instance.new("TextLabel")
+    dropTextList.Name = "DropTextList"
+    dropTextList.Parent = frame
+    dropTextList.BackgroundColor3 = _G.BackgroundItemColor
+    dropTextList.BackgroundTransparency = 1
+    dropTextList.Position = UDim2.new(0, 3, 0, 30)
+    dropTextList.Size = UDim2.new(0, 278, 0, 25)
+    dropTextList.Font = Enum.Font.Code
+    dropTextList.Text = default
+    dropTextList.TextColor3 = Color3.fromRGB(255, 255, 255)
+    dropTextList.TextSize = 12
+    dropTextList.TextXAlignment = Enum.TextXAlignment.Center
 
-DropStrokeList.Name = "DropStrokeList"
-DropStrokeList.Parent = DropTextList
-DropStrokeList.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-DropStrokeList.Color = Color3.fromRGB(255,255,255)
-DropStrokeList.LineJoinMode = Enum.LineJoinMode.Round
-DropStrokeList.Thickness = 0.2
-DropStrokeList.Transparency = 0
-DropStrokeList.Enabled = true
-DropStrokeList.Archivable = true
+    local uiCorner2 = Instance.new("UICorner")
+    uiCorner2.Parent = dropTextList
+    uiCorner2.CornerRadius = UDim.new(0, 0)
 
--- Adden Local --
-local DropItemScroll = Instance.new("ScrollingFrame")
-local DropItemLayout = Instance.new("UIListLayout")
-local DropItemStroke = Instance.new("UIStroke")
+    local dropStrokeList = Instance.new("UIStroke")
+    dropStrokeList.Name = "DropStrokeList"
+    dropStrokeList.Parent = dropTextList
+    dropStrokeList.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    dropStrokeList.Color = Color3.fromRGB(255, 255, 255)
+    dropStrokeList.LineJoinMode = Enum.LineJoinMode.Round
+    dropStrokeList.Thickness = 0.2
+    dropStrokeList.Transparency = 0
 
--- Adden Prop --
-DropItemScroll.Name = "DropItemScroll"
-DropItemScroll.Parent = Frame
-DropItemScroll.BackgroundColor3 = _G.SectionColor
-DropItemScroll.BackgroundTransparency = 1.000
-DropItemScroll.Position = UDim2.new(0, 3, 0, 60)
-DropItemScroll.Size = UDim2.new(0, 280, 0, 0)
-DropItemScroll.ScrollBarThickness = 0
-DropItemScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    -- สร้าง ScrollingFrame สำหรับรายการ item
+    local dropItemScroll = Instance.new("ScrollingFrame")
+    dropItemScroll.Name = "DropItemScroll"
+    dropItemScroll.Parent = frame
+    dropItemScroll.BackgroundColor3 = _G.SectionColor
+    dropItemScroll.BackgroundTransparency = 1
+    dropItemScroll.Position = UDim2.new(0, 3, 0, 60)
+    dropItemScroll.Size = UDim2.new(0, 280, 0, 0)
+    dropItemScroll.ScrollBarThickness = 0
+    dropItemScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 
-DropItemLayout.Name = "DropItemLayout"
-DropItemLayout.Parent = DropItemScroll
-DropItemLayout.SortOrder = Enum.SortOrder.LayoutOrder
-DropItemLayout.Padding = UDim.new(0, 0)
+    local dropItemLayout = Instance.new("UIListLayout")
+    dropItemLayout.Name = "DropItemLayout"
+    dropItemLayout.Parent = dropItemScroll
+    dropItemLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    dropItemLayout.Padding = UDim.new(0, 0)
 
-DropItemStroke.Name = "DropItemStroke"
-DropItemStroke.Parent = DropItemScroll
-DropItemStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-DropItemStroke.Color = Color3.fromRGB(51,255,255)
-DropItemStroke.LineJoinMode = Enum.LineJoinMode.Round
-DropItemStroke.Thickness = 0
-DropItemStroke.Transparency = 0
-DropItemStroke.Enabled = true
-DropItemStroke.Archivable = true
+    local dropItemStroke = Instance.new("UIStroke")
+    dropItemStroke.Name = "DropItemStroke"
+    dropItemStroke.Parent = dropItemScroll
+    dropItemStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    dropItemStroke.Color = Color3.fromRGB(51, 255, 255)
+    dropItemStroke.LineJoinMode = Enum.LineJoinMode.Round
+    dropItemStroke.Thickness = 0
+    dropItemStroke.Transparency = 0
 
--- Dropdown Script--
-local ItemCount = 0
-local FrameSize = 0
+    local function updateCanvasSize()
+        dropItemScroll.CanvasSize = UDim2.new(0, 0, 0, dropItemLayout.AbsoluteContentSize.Y)
+    end
 
-ImageButton.MouseButton1Click:Connect(function()
- if DropToggled then
-DropToggled = false
-DropSizeFrame:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-Frame:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-DropItemScroll:TweenSize(UDim2.new(0, 278, 0, 0), 'InOut', 'Linear', 0.08)
-game.TweenService:Create(ImageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{Rotation = 180}
-):Play()
-game.TweenService:Create(ImageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{ImageColor3 = Color3.fromRGB(51,255,255)}
-):Play()
+    local function collapseDropdown()
+        toggled = false
+        dropSizeFrame:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
+        frame:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
+        dropItemScroll:TweenSize(UDim2.new(0, 278, 0, 0), 'InOut', 'Linear', 0.08)
+        game.TweenService:Create(imageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {Rotation = 180}):Play()
+        game.TweenService:Create(imageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {ImageColor3 = Color3.fromRGB(51, 255, 255)}):Play()
+    end
 
- else
-DropToggled = true
-DropSizeFrame:TweenSize(UDim2.new(0, 278, 0, 65 + FrameSize), 'InOut', 'Linear', 0.08)
-Frame:TweenSize(UDim2.new(0, 278, 0, 65 + FrameSize), 'InOut', 'Linear', 0.08)
-DropItemScroll:TweenSize(UDim2.new(0, 278, 0, FrameSize), 'InOut', 'Linear', 0.08)
-game.TweenService:Create(ImageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{Rotation = 0}
-):Play()
-game.TweenService:Create(ImageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{ImageColor3 = Color3.fromRGB(51,255,255)}
-):Play()
- end
-end)
+    -- Toggle dropdown เมื่อคลิกปุ่ม
+    imageButton.MouseButton1Click:Connect(function()
+        if toggled then
+            collapseDropdown()
+        else
+            toggled = true
+            dropSizeFrame:TweenSize(UDim2.new(0, 278, 0, 65 + frameExtra), 'InOut', 'Linear', 0.08)
+            frame:TweenSize(UDim2.new(0, 278, 0, 65 + frameExtra), 'InOut', 'Linear', 0.08)
+            dropItemScroll:TweenSize(UDim2.new(0, 278, 0, frameExtra), 'InOut', 'Linear', 0.08)
+            game.TweenService:Create(imageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {Rotation = 0}):Play()
+            game.TweenService:Create(imageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {ImageColor3 = Color3.fromRGB(51, 255, 255)}):Play()
+        end
+    end)
 
-for i,v in next, list do
- ItemCount = ItemCount + 1
- if ItemCount == 1 then
-FrameSize = 30
- elseif ItemCount == 2 then
-FrameSize = 60
- elseif ItemCount == 3 then
-FrameSize = 90
- elseif ItemCount >= 3 then
-FrameSize = 120
- end
- 
- local ItemList = Instance.new("TextButton")
- 
- ItemList.Name = "ItemList"
- ItemList.Parent = DropItemScroll
- ItemList.BackgroundColor3 = Color3.fromRGB(51,255,255)
- ItemList.BackgroundTransparency = 1.000
- ItemList.Size = UDim2.new(0, 278, 0, 30)
- ItemList.AutoButtonColor = false
- ItemList.Font = Enum.Font.Code
- ItemList.TextColor3 = Color3.fromRGB(51,255,255)
- ItemList.TextSize = 12.000
- ItemList.Text = v or "None..."
- ItemList.TextXAlignment = Enum.TextXAlignment.Center
+    -- ฟังก์ชันสำหรับเพิ่ม item เข้าไปใน dropdown
+    local function addItem(itemText)
+        itemText = itemText or "None..."
+        itemCount = itemCount + 1
+        -- กำหนดความสูงของ dropdown ตามจำนวน item
+        if itemCount == 1 then
+            frameExtra = 30
+        elseif itemCount == 2 then
+            frameExtra = 60
+        elseif itemCount == 3 then
+            frameExtra = 90
+        else
+            frameExtra = 120
+        end
 
- ItemList.MouseEnter:Connect(function()
-game.TweenService:Create(ItemList, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{BackgroundTransparency = 0.8}
-):Play()
- end)
- ItemList.MouseLeave:Connect(function()
-game.TweenService:Create(ItemList, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{BackgroundTransparency = 1}
-):Play()
- end)
- 
- ItemList.MouseButton1Click:Connect(function()
-DropTextList.Text = v or "None..."
-pcall(callback, v)
-DropToggled = false
-DropSizeFrame:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-Frame:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-DropItemScroll:TweenSize(UDim2.new(0, 278, 0), 'InOut', 'Linear', 0.08)
-game.TweenService:Create(ImageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{Rotation = 180}
-):Play()
-game.TweenService:Create(ImageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{ImageColor3 = Color3.fromRGB(51,255,255)}
-):Play()
- end)
- DropItemScroll.CanvasSize = UDim2.new(0, 0, 0, DropItemLayout.AbsoluteContentSize.Y)
+        local itemButton = Instance.new("TextButton")
+        itemButton.Name = "ItemList"
+        itemButton.Parent = dropItemScroll
+        -- ปรับสไตล์ของ dropdown ตามแบบ L หรือ R
+        if style == "R" then
+            itemButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            itemButton.TextColor3 = Color3.fromRGB(51, 255, 255)
+        else
+            itemButton.BackgroundColor3 = Color3.fromRGB(51, 255, 255)
+            itemButton.TextColor3 = Color3.fromRGB(51, 255, 255)
+        end
+        itemButton.BackgroundTransparency = 1
+        itemButton.Size = UDim2.new(0, 278, 0, 30)
+        itemButton.AutoButtonColor = false
+        itemButton.Font = Enum.Font.Code
+        itemButton.TextSize = 12
+        itemButton.Text = itemText
+        itemButton.TextXAlignment = Enum.TextXAlignment.Center
+
+        itemButton.MouseEnter:Connect(function()
+            game.TweenService:Create(itemButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {BackgroundTransparency = 0.8}):Play()
+        end)
+        itemButton.MouseLeave:Connect(function()
+            game.TweenService:Create(itemButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {BackgroundTransparency = 1}):Play()
+        end)
+        itemButton.MouseButton1Click:Connect(function()
+            dropTextList.Text = itemText
+            pcall(callback, itemText)
+            collapseDropdown()
+        end)
+        updateCanvasSize()
+    end
+
+    -- เพิ่ม item เริ่มต้นจาก list
+    for _,v in ipairs(list) do
+        addItem(v)
+    end
+
+    -- API สำหรับ dropdown
+    function dropdown:Clear()
+        for _,child in ipairs(dropItemScroll:GetChildren()) do
+            if child:IsA("TextButton") then
+                child:Destroy()
+            end
+        end
+        frameExtra = 0
+        itemCount = 0
+        dropTextList.Text = "Reset Successfully..."
+        toggled = false
+        collapseDropdown()
+    end
+
+    function dropdown:Add(newItem)
+        addItem(newItem)
+    end
+
+    return dropdown
 end
 
-function dropfunc:Clear()
-                    for _,v  in next, DropItemScroll:GetChildren() do
-                        if v:IsA("TextButton") then
-                            v:Destroy()
-                            FrameSize = 0
-                            ItemCount = 0
-                        end
-                    end
-                    DropTextList.Text = "Reset Succesfully..."
-                    DropToggled = false
-                    DropSizeFrame:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-                    Frame:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-                    DropItemScroll:TweenSize(UDim2.new(0, 278, 0), 'InOut', 'Linear', 0.08)
-                    game.TweenService:Create(ImageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-                        {Rotation = 180}
-                        ):Play()
-                    game.TweenService:Create(ImageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-                        {ImageColor3 = Color3.fromRGB(255,255,255)}
-                        ):Play()
-                end
-
-function dropfunc:Add(newadd)
- newadd = newadd or {}
- ItemCount = ItemCount + 1
- if ItemCount == 1 then
-FrameSize = 30
- elseif ItemCount == 2 then
-FrameSize = 60
- elseif ItemCount == 3 then
-FrameSize = 90
- elseif ItemCount >= 3 then
-FrameSize = 120
- end
- 
- local ItemList = Instance.new("TextButton")
- ItemList.Name = "ItemList"
- ItemList.Parent = DropItemScroll
- ItemList.BackgroundColor3 = Color3.fromRGB(51,255,255)
- ItemList.BackgroundTransparency = 1.000
- ItemList.Size = UDim2.new(0, 278, 0, 30)
- ItemList.AutoButtonColor = false
- ItemList.Font = Enum.Font.Code
- ItemList.TextColor3 = Color3.fromRGB(51,255,255)
- ItemList.TextSize = 12.000
- ItemList.Text = newadd or "None..."
- ItemList.TextXAlignment = Enum.TextXAlignment.Center
-
- ItemList.MouseEnter:Connect(function()
-game.TweenService:Create(ItemList, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{BackgroundTransparency = 0.8}
-):Play()
- end)
- ItemList.MouseLeave:Connect(function()
-game.TweenService:Create(ItemList, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{BackgroundTransparency = 1}
-):Play()
- end)
- 
- ItemList.MouseButton1Click:Connect(function()
-DropTextList.Text = newadd or "None..."
-pcall(callback, newadd)
-DropToggled = false
-DropSizeFrame:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-Frame:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-DropItemScroll:TweenSize(UDim2.new(0, 278, 0), 'InOut', 'Linear', 0.08)
-game.TweenService:Create(ImageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{Rotation = 180}
-):Play()
-game.TweenService:Create(ImageButton, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{ImageColor3 = Color3.fromRGB(51,255,255)}
-):Play()
- end)
- DropItemScroll.CanvasSize = UDim2.new(0, 0, 0, DropItemLayout.AbsoluteContentSize.Y)
-end
-return dropfunc
+-- สร้าง Dropdown ซ้าย (L)
+function main:AddDropdownL(droptitle, list, config, callback)
+    return createDropdown({
+        parent = MainFramePage,
+        title = droptitle,
+        list = list,
+        config = config,
+        callback = callback,
+        style = "L"
+    })
 end
 
-	function main:AddDropdownR(droptitle, list,  config, callback1)
--- Local --
-local config = config or "Select First"
-local dropfunc1 = {}
-local list = list or {}
-local DropToggled1 = false
-local DropSizeFrame1 = Instance.new("Frame")
-local Frame1 = Instance.new("Frame")
-local UIStroke1 = Instance.new("UIStroke")
-local DropCover1 = Instance.new("Frame")
-local UICorner1 = Instance.new("UICorner")
-local UICorner21 = Instance.new("UICorner")
-local ImageLabel1 = Instance.new("ImageLabel")
-local Space1 = Instance.new("TextLabel")
-local Title1 = Instance.new("TextLabel")
-local ImageButton1 = Instance.new("ImageButton")
-local DropStrokeList1 = Instance.new("UIStroke")
-local DropTextList1 = Instance.new("TextLabel")
-
--- Prop --
-DropSizeFrame1.Name = droptitle or "DropSizeFrame"
-DropSizeFrame1.Parent = MainFramePage2
-DropSizeFrame1.BackgroundColor3 = _G.SectionColor
-DropSizeFrame1.BackgroundTransparency = 1.000
-DropSizeFrame1.Size = UDim2.new(0, 280, 0, 60)
-
-Frame1.Name = "Frame"
-Frame1.Parent = DropSizeFrame1
-Frame1.BackgroundColor3 = Color3.fromRGB(30,30,30)
-Frame1.BorderSizePixel = 0
-Frame1.Position = UDim2.new(0, 3, 0, 0)
-Frame1.Size = UDim2.new(0, 278, 0, 60)
-
-UIStroke1.Name = "UIStroke"
-UIStroke1.Parent = Frame1
-UIStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-UIStroke1.Color = Color3.fromRGB(255,255,255)
-UIStroke1.LineJoinMode = Enum.LineJoinMode.Round
-UIStroke1.Thickness = 0.7
-UIStroke1.Transparency = 0
-UIStroke1.Enabled = true
-UIStroke1.Archivable = true
-
-UICorner1.Parent = Frame1
-UICorner1.CornerRadius = UDim.new(0, 3)
-
-DropCover1.Name = "DropCover"
-DropCover1.Parent = Frame1
-DropCover1.BackgroundColor3 = _G.BackgroundItemColor
-DropCover1.BackgroundTransparency = 1.000
-DropCover1.BorderSizePixel = 0
-DropCover1.Position = UDim2.new(0, 0, 0, 0)
-DropCover1.Size = UDim2.new(0, 204, 0, 30)
-
-ImageLabel1.Name = "ImageLabel"
-ImageLabel1.Parent = DropCover1
-ImageLabel1.BackgroundColor3 = _G.SectionColor
-ImageLabel1.BackgroundTransparency = 1.000
-ImageLabel1.BorderSizePixel = 0
-ImageLabel1.Position = UDim2.new(0, 5, 0, 6)
-ImageLabel1.Size = UDim2.new(0, 18, 0, 18)
-ImageLabel1.Image = "rbxassetid://8825010231"
-ImageLabel1.ImageColor3 = Color3.fromRGB(255,255,255)
-
-Space1.Name = "Space"
-Space1.Parent = DropCover1
-Space1.BackgroundColor3 = _G.SectionColor
-Space1.BackgroundTransparency = 1.000
-Space1.Position = UDim2.new(0, 30, 0, 0)
-Space1.Size = UDim2.new(0, 15, 0, 30)
-Space1.Font = Enum.Font.Code
-Space1.Text = "|"
-Space1.TextSize = 13.000
-Space1.TextColor3 = Color3.fromRGB(255,255,255)
-Space1.TextXAlignment = Enum.TextXAlignment.Center
-
-Title1.Name = "Title"
-Title1.Parent = DropCover1
-Title1.BackgroundColor3 = _G.SectionColor
-Title1.BackgroundTransparency = 1.000
-Title1.Position = UDim2.new(0, 50, 0, 0)
-Title1.Size = UDim2.new(0, 278, 0, 30)
-Title1.Font = Enum.Font.Code
-Title1.Text = tostring(droptitle) or "drop Title"
-Title1.TextColor3 = Color3.fromRGB(255,255,255)
-Title1.TextSize = 12.000
-Title1.TextXAlignment = Enum.TextXAlignment.Left
-
-ImageButton1.Name = "ImageButton"
-ImageButton1.Parent = DropCover1
-ImageButton1.BackgroundColor3 = _G.WindowBackgroundColor
-ImageButton1.BackgroundTransparency = 1.000
-ImageButton1.Position = UDim2.new(0, 250, 0, 7)
-ImageButton1.Size = UDim2.new(0, 23, 0, 18)
-ImageButton1.Image = "rbxassetid://6583628103"
-ImageButton1.ImageColor3 = Color3.fromRGB(51,255,255)
-ImageButton1.Rotation = 180
-
-DropTextList1.Name = "DropTextList"
-DropTextList1.Parent = Frame1
-DropTextList1.BackgroundColor3 = _G.BackgroundItemColor
-DropTextList1.BackgroundTransparency = 1.000
-DropTextList1.Position = UDim2.new(0, 3, 0, 30)
-DropTextList1.Size = UDim2.new(0, 278, 0, 25)
-DropTextList1.Font = Enum.Font.Code
-DropTextList1.Text = v or config or "Select First"
-DropTextList1.TextColor3 = Color3.fromRGB(255,255,255)
-DropTextList1.TextSize = 12.000
-DropTextList1.TextXAlignment = Enum.TextXAlignment.Center
-
-UICorner21.Parent = DropTextList1
-UICorner21.CornerRadius = UDim.new(0,0)
-
-DropStrokeList1.Name = "DropStrokeList"
-DropStrokeList1.Parent = DropTextList1
-DropStrokeList1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-DropStrokeList1.Color = Color3.fromRGB(255,255,255)
-DropStrokeList1.LineJoinMode = Enum.LineJoinMode.Round
-DropStrokeList1.Thickness = 0.2
-DropStrokeList1.Transparency = 0
-DropStrokeList1.Enabled = true
-DropStrokeList1.Archivable = true
-
--- Adden Local --
-local DropItemScroll1 = Instance.new("ScrollingFrame")
-local DropItemLayout1 = Instance.new("UIListLayout")
-local DropItemStroke1 = Instance.new("UIStroke")
-
--- Adden Prop --
-DropItemScroll1.Name = "DropItemScroll"
-DropItemScroll1.Parent = Frame1
-DropItemScroll1.BackgroundColor3 = _G.SectionColor
-DropItemScroll1.BackgroundTransparency = 1.000
-DropItemScroll1.Position = UDim2.new(0, 3, 0, 60)
-DropItemScroll1.Size = UDim2.new(0, 278, 0, 0)
-DropItemScroll1.ScrollBarThickness = 0
-DropItemScroll1.CanvasSize = UDim2.new(0, 0, 0, 0)
-
-DropItemLayout1.Name = "DropItemLayout"
-DropItemLayout1.Parent = DropItemScroll1
-DropItemLayout1.SortOrder = Enum.SortOrder.LayoutOrder
-DropItemLayout1.Padding = UDim.new(0, 0)
-
-DropItemStroke1.Name = "DropItemStroke"
-DropItemStroke1.Parent = DropItemScroll1
-DropItemStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-DropItemStroke1.Color = Color3.fromRGB(51,255,255)
-DropItemStroke1.LineJoinMode = Enum.LineJoinMode.Round
-DropItemStroke1.Thickness = 0
-DropItemStroke1.Transparency = 0
-DropItemStroke1.Enabled = true
-DropItemStroke1.Archivable = true
-
--- Dropdown Script--
-local ItemCount1 = 0
-local FrameSize1 = 0
-
-ImageButton1.MouseButton1Click:Connect(function()
- if DropToggled1 then
-DropToggled1 = false
-DropSizeFrame1:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-Frame1:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-DropItemScroll1:TweenSize(UDim2.new(0, 278, 0, 0), 'InOut', 'Linear', 0.08)
-game.TweenService:Create(ImageButton1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{Rotation = 180}
-):Play()
-game.TweenService:Create(ImageButton1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{ImageColor3 = Color3.fromRGB(51,255,255)}
-):Play()
-
- else
-DropToggled1 = true
-DropSizeFrame1:TweenSize(UDim2.new(0, 278, 0, 65 + FrameSize1), 'InOut', 'Linear', 0.08)
-Frame1:TweenSize(UDim2.new(0, 278, 0, 65 + FrameSize1), 'InOut', 'Linear', 0.08)
-DropItemScroll1:TweenSize(UDim2.new(0, 278, 0, FrameSize1), 'InOut', 'Linear', 0.08)
-game.TweenService:Create(ImageButton1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{Rotation = 0}
-):Play()
-game.TweenService:Create(ImageButton1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{ImageColor3 = Color3.fromRGB(51,255,255)}
-):Play()
- end
-end)
-
-for i,v in next, list do
- ItemCount1 = ItemCount1 + 1
- if ItemCount1 == 1 then
-FrameSize1 = 30
- elseif ItemCount1 == 2 then
-FrameSize1 = 60
- elseif ItemCount1 == 3 then
-FrameSize1 = 90
- elseif ItemCount1 >= 3 then
-FrameSize1 = 120
- end
- 
- local ItemList1 = Instance.new("TextButton")
- 
- ItemList1.Name = "ItemList"
- ItemList1.Parent = DropItemScroll1
- ItemList1.BackgroundColor3 = Color3.fromRGB(51,255,255)
- ItemList1.BackgroundTransparency = 1.000
- ItemList1.Size = UDim2.new(0, 278, 0, 30)
- ItemList1.AutoButtonColor = false
- ItemList1.Font = Enum.Font.Code
- ItemList1.TextColor3 = Color3.fromRGB(51,255,255)
- ItemList1.TextSize = 12.000
- ItemList1.Text = v or "None..."
- ItemList1.TextXAlignment = Enum.TextXAlignment.Center
-
- ItemList1.MouseEnter:Connect(function()
-game.TweenService:Create(ItemList1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{BackgroundTransparency = 0.8}
-):Play()
- end)
- ItemList1.MouseLeave:Connect(function()
-game.TweenService:Create(ItemList1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{BackgroundTransparency = 1}
-):Play()
- end)
- 
- ItemList1.MouseButton1Click:Connect(function()
-DropTextList1.Text = v or "None..."
-pcall(callback1, v)
-DropToggled1 = false
-DropSizeFrame1:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-Frame1:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-DropItemScroll1:TweenSize(UDim2.new(0, 278, 0), 'InOut', 'Linear', 0.08)
-game.TweenService:Create(ImageButton1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{Rotation = 180}
-):Play()
-game.TweenService:Create(ImageButton1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{ImageColor3 = Color3.fromRGB(51,255,255)}
-):Play()
- end)
- DropItemScroll1.CanvasSize = UDim2.new(0, 0, 0, DropItemLayout1.AbsoluteContentSize.Y)
+-- สร้าง Dropdown ขวา (R)
+function main:AddDropdownR(droptitle, list, config, callback)
+    return createDropdown({
+        parent = MainFramePage2,
+        title = droptitle,
+        list = list,
+        config = config,
+        callback = callback,
+        style = "R"
+    })
 end
 
-               function dropfunc1:Clear()
-                    for _,v  in next, DropItemScroll1:GetChildren() do
-                        if v:IsA("TextButton") then
-                            v:Destroy()
-                        end
-                    end
-                    DropTextList1.Text = "Reset Succesfully"
-                    DropToggled1 = false
-                    DropSizeFrame1:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-                    Frame1:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-                    DropItemScroll1:TweenSize(UDim2.new(0, 278, 0), 'InOut', 'Linear', 0.08)
-                    game.TweenService:Create(ImageButton1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-                        {Rotation = 180}
-                        ):Play()
-                    game.TweenService:Create(ImageButton1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-                        {ImageColor3 = Color3.fromRGB(255,255,255)}
-                        ):Play()
-                end
-
-function dropfunc1:Add(newadd)
- newadd = newadd or {}
- ItemCount1 = ItemCount1 + 1
- if ItemCount1 == 1 then
-FrameSize1= 30
- elseif ItemCount1 == 2 then
-FrameSize1 = 60
- elseif ItemCount1 == 3 then
-FrameSize1 = 90
- elseif ItemCount1 >= 3 then
-FrameSize1 = 120
- end
- 
- local ItemList1 = Instance.new("TextButton")
- ItemList1.Name = "ItemList"
- ItemList1.Parent = DropItemScroll1
- ItemList1.BackgroundColor3 = Color3.fromRGB(255,255,255)
- ItemList1.BackgroundTransparency = 1.000
- ItemList1.Size = UDim2.new(0, 278, 0, 30)
- ItemList1.AutoButtonColor = false
- ItemList1.Font = Enum.Font.Code
- ItemList1.TextColor3 = Color3.fromRGB(51,255,255)
- ItemList1.TextSize = 12.000
- ItemList1.Text = newadd or "None..."
- ItemList1.TextXAlignment = Enum.TextXAlignment.Center
-
- ItemList1.MouseEnter:Connect(function()
-game.TweenService:Create(ItemList1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{BackgroundTransparency = 0.8}
-):Play()
- end)
- ItemList1.MouseLeave:Connect(function()
-game.TweenService:Create(ItemList1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{BackgroundTransparency = 1}
-):Play()
- end)
- 
- ItemList1.MouseButton1Click:Connect(function()
-DropTextList1.Text = newadd or "None..."
-pcall(callback1, newadd)
-DropToggled1 = false
-DropSizeFrame1:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-Frame1:TweenSize(UDim2.new(0, 278, 0, 60), 'InOut', 'Linear', 0.08)
-DropItemScroll1:TweenSize(UDim2.new(0, 278, 0), 'InOut', 'Linear', 0.08)
-game.TweenService:Create(ImageButton1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{Rotation = 180}
-):Play()
-game.TweenService:Create(ImageButton1, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-{ImageColor3 = Color3.fromRGB(51,255,255)}
-):Play()
- end)
- DropItemScroll1.CanvasSize = UDim2.new(0, 0, 0, DropItemLayout1.AbsoluteContentSize.Y)
-end
-return dropfunc1
-end
 
 
 local function createSlider(parent, text, min, max, set, callback)
