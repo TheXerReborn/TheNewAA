@@ -1264,92 +1264,46 @@ function main:AddButtonL(text, callback)
         end
     end)
 end
-function main:AddToggle(parentFrame, text, config, callback)
+function main:AddToggle(text, config, callback, parentFrame)
     config = config or false
     local toggled = config
+    local Toggle = Instance.new("Frame", parentFrame)
+    local Button = Instance.new("TextButton", Toggle)
+    local Label = Instance.new("TextLabel", Toggle)
+    local ToggleImage = Instance.new("Frame", Toggle)
+    local Circle = Instance.new("ImageLabel", ToggleImage)
+    local True = Instance.new("TextLabel", Circle)
     
-    local Toggle = Instance.new("Frame")
-    local UICorner = Instance.new("UICorner")
-    local Button = Instance.new("TextButton")
-    local Label = Instance.new("TextLabel")
-    local ToggleImage = Instance.new("Frame")
-    local UICornerImage = Instance.new("UICorner")
-    local Circle = Instance.new("ImageLabel")
-    local UICornerCircle = Instance.new("UICorner")
-    local TrueLabel = Instance.new("TextLabel")
-    
-    Toggle.Name = "Toggle"
-    Toggle.Parent = parentFrame
     Toggle.BackgroundColor3 = _G.Color
     Toggle.Size = UDim2.new(0, 280, 0, 28)
-    
-    UICorner.CornerRadius = UDim.new(0, 5)
-    UICorner.Parent = Toggle
-    
-    Button.Name = "Button"
-    Button.Parent = Toggle
-    Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    Button.Position = UDim2.new(0, 1, 0, 1)
-    Button.Size = UDim2.new(0, 278, 0, 26)
-    Button.AutoButtonColor = false
-    Button.Text = ""
-    
-    Label.Name = "Label"
-    Label.Parent = Toggle
-    Label.BackgroundTransparency = 1.0
-    Label.Position = UDim2.new(0, 10, 0, 5)
-    Label.Size = UDim2.new(0, 200, 0, 20)
-    Label.Font = Enum.Font.Code
-    Label.Text = text
-    Label.TextColor3 = Color3.fromRGB(225, 225, 225)
-    Label.TextSize = 12
-    
-    ToggleImage.Name = "ToggleImage"
-    ToggleImage.Parent = Toggle
-    ToggleImage.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    ToggleImage.Position = UDim2.new(0, 250, 0, 4)
-    ToggleImage.Size = UDim2.new(0, 22, 0, 20)
-    
-    UICornerImage.CornerRadius = UDim.new(0, 4)
-    UICornerImage.Parent = ToggleImage
-    
-    Circle.Name = "Circle"
-    Circle.Parent = ToggleImage
-    Circle.BackgroundColor3 = toggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(30, 30, 30)
-    Circle.Position = UDim2.new(0, 2, 0, 2)
-    Circle.Size = UDim2.new(0, 18, 0, 16)
-    
-    TrueLabel.Name = "TrueLabel"
-    TrueLabel.Parent = Circle
-    TrueLabel.BackgroundTransparency = 1.0
-    TrueLabel.Size = UDim2.new(1, 0, 1, 0)
-    TrueLabel.Font = Enum.Font.SourceSans
-    TrueLabel.Text = toggled and "✔" or ""
-    TrueLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-    TrueLabel.TextSize = 16
+    Button.Size, Button.Position, Button.Text = UDim2.new(0, 278, 0, 26), UDim2.new(0, 1, 0, 1), ""
+    Label.Text, Label.Size, Label.Position = text, UDim2.new(0, 278, 0, 26), UDim2.new(0, 1, 0, 1)
+    ToggleImage.Size, ToggleImage.Position, ToggleImage.BackgroundColor3 = UDim2.new(0, 22, 0, 20), UDim2.new(0, 250, 0, 4), Color3.fromRGB(20, 20, 20)
+    Circle.Size, Circle.Position, Circle.BackgroundColor3 = UDim2.new(0, 18, 0, 16), UDim2.new(0, 2, 0, 2), Color3.fromRGB(30, 30, 30)
+    True.Size, True.Text = UDim2.new(0, 18, 0, 16), ""
     
     Button.MouseButton1Click:Connect(function()
         toggled = not toggled
-        TrueLabel.Text = toggled and "✔" or ""
-        local color = toggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(30, 30, 30)
-        TweenService:Create(Circle, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = color}):Play()
+        True.Text = toggled and "✔" or ""
+        TweenService:Create(Circle, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {BackgroundColor3 = toggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(30, 30, 30)}):Play()
         pcall(callback, toggled)
     end)
     
     if config then
-        toggled = true
-        TrueLabel.Text = "✔"
-        TweenService:Create(Circle, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(0, 255, 0)}):Play()
+        True.Text = "✔"
+        TweenService:Create(Circle, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {BackgroundColor3 = Color3.fromRGB(0, 255, 0)}):Play()
         pcall(callback, toggled)
     end
 end
 
 function main:AddToggleL(text, config, callback)
-    self:AddToggle(MainFramePage, text, config, callback)
+    self:AddToggle(text, config, callback, MainFramePage)
 end
 
 function main:AddToggleR(text, config, callback)
-    self:AddToggle(MainFramePage2, text, config, callback)
+    self:AddToggle(text, config, callback, MainFramePage2)
 end
 
 		
@@ -1635,6 +1589,98 @@ function main:AddDropdownR(droptitle, list, config, callback)
     })
 end
 
+local function createMultiDropdown(params)
+    local parent    = params.parent or error("Parent is required")
+    local title     = params.title or "MultiDropdown"
+    local list      = params.list or {}
+    local default   = params.config or "Select Items"
+    local callback  = params.callback or function() end
+    local style     = params.style or "L"
+    
+    local dropdown = {}
+    local selectedItems = {}
+    
+    local dropSizeFrame = Instance.new("Frame")
+    dropSizeFrame.Name = title
+    dropSizeFrame.Parent = parent
+    dropSizeFrame.BackgroundTransparency = 1
+    dropSizeFrame.Size = UDim2.new(0, 280, 0, 60)
+    
+    local frame = Instance.new("Frame")
+    frame.Parent = dropSizeFrame
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    frame.Size = UDim2.new(0, 278, 0, 60)
+    
+    local dropTextList = Instance.new("TextLabel")
+    dropTextList.Parent = frame
+    dropTextList.Size = UDim2.new(0, 278, 0, 25)
+    dropTextList.Text = default
+    dropTextList.TextColor3 = Color3.fromRGB(255, 255, 255)
+    dropTextList.TextSize = 12
+    dropTextList.TextXAlignment = Enum.TextXAlignment.Center
+    
+    local dropItemScroll = Instance.new("ScrollingFrame")
+    dropItemScroll.Parent = frame
+    dropItemScroll.Position = UDim2.new(0, 3, 0, 60)
+    dropItemScroll.Size = UDim2.new(0, 280, 0, 0)
+    dropItemScroll.ScrollBarThickness = 0
+    dropItemScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    
+    local dropItemLayout = Instance.new("UIListLayout")
+    dropItemLayout.Parent = dropItemScroll
+    
+    local function updateSelectedText()
+        dropTextList.Text = #selectedItems > 0 and table.concat(selectedItems, ", ") or default
+    end
+    
+    local function addItem(itemText)
+        local itemButton = Instance.new("TextButton")
+        itemButton.Parent = dropItemScroll
+        itemButton.Size = UDim2.new(0, 278, 0, 30)
+        itemButton.Text = itemText
+        
+        itemButton.MouseButton1Click:Connect(function()
+            local index = table.find(selectedItems, itemText)
+            if index then
+                table.remove(selectedItems, index)
+                itemButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            else
+                table.insert(selectedItems, itemText)
+                itemButton.BackgroundColor3 = Color3.fromRGB(51, 255, 255)
+            end
+            updateSelectedText()
+            callback(selectedItems)
+        end)
+    end
+    
+    for _, v in ipairs(list) do
+        addItem(v)
+    end
+    
+    return dropdown
+end
+
+function main:AddMultiDropdownL(droptitle, list, config, callback)
+    return createMultiDropdown({
+        parent = MainFramePage,
+        title = droptitle,
+        list = list,
+        config = config,
+        callback = callback,
+        style = "L"
+    })
+end
+
+function main:AddMultiDropdownR(droptitle, list, config, callback)
+    return createMultiDropdown({
+        parent = MainFramePage2,
+        title = droptitle,
+        list = list,
+        config = config,
+        callback = callback,
+        style = "R"
+    })
+end
 
 
 local function createSlider(parent, text, min, max, set, callback)
