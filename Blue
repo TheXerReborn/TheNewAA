@@ -11,7 +11,7 @@ pcall(function()
     _G.SST = {
         Farm_Chest = false,
         Attact_Aura = false,
-        Distance_Aura = "60"
+        Distance_Aura = "70"
     }
 end)
 
@@ -2145,10 +2145,6 @@ end)
 spawn(function()
     local lastChest = nil
     while wait() do
-        if not _G.SST.Farm_Chest then
-            break -- หยุด loop ถ้าปิดการฟาร์ม
-        end
-
         pcall(function()
             if _G.SST.Farm_Chest then
                 -- ถ้า Chest อันเก่าหายไป หรือไม่มี ProximityPrompt แล้ว
@@ -2173,6 +2169,7 @@ spawn(function()
         end)
     end
 end)
+_G.SST.Distance_Aura = Distance_Aura
 Main:AddSliderLeft("Distance Aura",1,200,_G.SST.Distance_Aura,function(a)
   Distance_Aura = a
     _G.SST.Distance_Aura = Distance_Aura
