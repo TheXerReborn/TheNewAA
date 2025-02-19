@@ -2273,13 +2273,21 @@ end)
 
 spawn(function()
     while wait() do
-        pcall(function()
-            if _G.SST.Auto_Play_Again then
-                if game:GetService("Players").LocalPlayer.PlayerGui.MainGui.InstanceCompleteFrame.Visible == true then
-                    game:GetService("TeleportService"):Teleport(game.PlaceId, game.JobId)
+        if _G.SST and _G.SST.Auto_Play_Again then
+            local player = game:GetService("Players").LocalPlayer
+            local gui = player:FindFirstChild("PlayerGui")
+            if gui then
+                local mainGui = gui:FindFirstChild("MainGui")
+                if mainGui then
+                    local frame = mainGui:FindFirstChild("InstanceCompleteFrame")
+                    if frame and frame.Visible then
+                        print("Teleporting...") -- เช็คว่าเข้าเงื่อนไขจริง
+                        game:GetService("TeleportService"):Teleport(game.PlaceId, game.JobId)
+                    end
+                end
             end
-            end
-        end)
         end
-    end)
+    end
+end)
+
 
