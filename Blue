@@ -11,7 +11,8 @@ pcall(function()
     _G.SST = {
         Farm_Chest = false,
         Attact_Aura = false,
-        Distance_Aura = "60"
+        Distance_Aura = "60",
+        TP_Mon = false
     }
 end)
 
@@ -2195,3 +2196,45 @@ spawn(function()
     end
 end)
 
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+local spawnedEntities = workspace:FindFirstChild("SpawnedEntities")
+if not spawnedEntities then
+    warn("SpawnedEntities not found!")
+    return
+end
+
+-- ฟังก์ชันหามอนสเตอร์ตัวแรก
+local function getFirstMonster()
+    for _, entity in pairs(spawnedEntities:GetChildren()) do
+        if entity:IsA("Model") and entity:FindFirstChild("Head") then
+            return entity
+        end
+    end
+    return nil
+end
+Main:AddToggleL("TP Mon",_G.SST.TP_Mon,function(a)
+    TP_Mon = a
+    _G.SST.TP_Mon = TP_Mon
+    SS()
+end)
+spawn(function()
+    while task.wait(0) do
+        pcall(function()
+            if _G.SST.TP_Mon then
+                local monster = getFirstMonster()
+                if monster then
+                    local head = monster:FindFirstChild("Head")
+                    if head and character and character:FindFirstChild("HumanoidRootPart") then
+                        -- TP ไปบนหัวมอน +30 หน่วย
+                        character.HumanoidRootPart.CFrame = head.CFrame + Vector3.new(0, 30, 0)
+                    end
+                else
+                    warn("No monster found in SpawnedEntities!")
+                end
+            end
+        end)
+    end
+end)
