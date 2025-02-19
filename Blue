@@ -2265,7 +2265,7 @@ spawn(function()
     end
 end)
 
-Dungeon:AddToggleL("Auto Play Again"_G.SST.Auto_Play_Again,function(q)
+Dungeon:AddToggleL("Auto Play Again",_G.SST.Auto_Play_Again,function(q)
     Auto_Play_Again = q
     _G.SST.Auto_Play_Again = Auto_Play_Again
     SS()
