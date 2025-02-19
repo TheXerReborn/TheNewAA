@@ -2230,7 +2230,7 @@ spawn(function()
 
                     if rootPart then
                         -- TP ไปบนมอน +30 หน่วย
-                        rootPart.CFrame = monster.CFrame + Vector3.new(0, 30, 0)
+                        rootPart.CFrame = monster.CFrame + Vector3.new(0, 20, 0)
                     end
                 else
                     warn("No monster found in SpawnedEntities!")
