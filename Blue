@@ -2109,11 +2109,18 @@ Main:AddToggleL("Farm Chest",_G.SST.Farm_Chest,function(a)
     Farm_Chest = a
 _G.SST.Farm_Chest = Farm_Chest
 SS()
+if on then
+    stop = true
+else
 end)
 
 spawn(function()
     local lastChest = nil
     while wait() do
+        if not _G.SST.Farm_Chest then
+            break -- หยุด loop ถ้าปิดการฟาร์ม
+        end
+
         pcall(function()
             if _G.SST.Farm_Chest then
                 -- ถ้า Chest อันเก่าหายไป หรือไม่มี ProximityPrompt แล้ว
