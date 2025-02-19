@@ -2226,11 +2226,12 @@ spawn(function()
             if _G.SST.TP_Mon then
                 local monster = getFirstMonster()
                 if monster then
-                    local rootPart = character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("HumanoidRootPartCollision")
+                    local humanoid = monster:FindFirstChildOfClass("Humanoid") -- หา Humanoid
+                    local monsterRoot = monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChild("HumanoidRootPartCollision") -- หา RootPart ของมอนสเตอร์
 
-                    if rootPart then
-                        -- TP ไปบนมอน +30 หน่วย
-                        rootPart.CFrame = monster.CFrame + Vector3.new(0, 20, 0)
+                    if humanoid and humanoid.Health > 0 and monsterRoot then -- เช็คว่ามีเลือดและมี RootPart
+                            -- วาร์ปไปบนมอนสเตอร์ +20 หน่วย
+                           TP(monsterRoot.CFrame + Vector3.new(0, 20, 0))
                     end
                 else
                     warn("No monster found in SpawnedEntities!")
