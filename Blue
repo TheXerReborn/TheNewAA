@@ -2104,7 +2104,7 @@ local function attackAll()
         local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
             local distance = (humanoidRootPart.Position - rootPart.Position).Magnitude
-            if distance <= 80 then
+            if distance <= _G.SST.Distance_Aura then
                 table.insert(targets, entity)
             end
         end
@@ -2140,9 +2140,6 @@ Main:AddToggleL("Farm Chest",_G.SST.Farm_Chest,function(a)
     Farm_Chest = a
 _G.SST.Farm_Chest = Farm_Chest
 SS()
-if on then
-    stop = true
-else
 end)
 
 spawn(function()
