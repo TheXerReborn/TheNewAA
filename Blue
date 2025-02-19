@@ -2104,7 +2104,7 @@ local function attackAll()
         local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
             local distance = (humanoidRootPart.Position - rootPart.Position).Magnitude
-            if distance <= _G.SST.Distance_Aura then
+            if distance <= 70 then
                 table.insert(targets, entity)
             end
         end
