@@ -2156,12 +2156,6 @@ Main:AddToggleL("Attact Aura",_G.SST.Attact_Aura,function(a)
     SS()
 end)
 
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local rootPart = character:WaitForChild("HumanoidRootPart")
-local replicatedStorage = game:GetService("ReplicatedStorage")
-local spawnedEntities = workspace:FindFirstChild("SpawnedEntities")
-
 local function attackAll()
     if not spawnedEntities then return end
     local event = replicatedStorage:FindFirstChild("PlayerEvents") and replicatedStorage.PlayerEvents:FindFirstChild("EntityHit")
@@ -2180,14 +2174,14 @@ local function attackAll()
     end
 
     for _, target in ipairs(targets) do
-        task.defer(function()
-            event:FireServer(target)
-        end)
+        event:FireServer(target)
+        task.wait(0.1) -- รอ 0.1 วิระหว่างโจมตีแต่ละตัว
     end
 end
 
-task.spawn(function()
-    while task.wait(0.2) do
+
+spawn(function()
+    while game:GetService("RunService").Heartbeat:Wait() do
         pcall(function()
             if _G.SST.Attact_Aura then
                 attackAll()
