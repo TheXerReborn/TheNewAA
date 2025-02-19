@@ -2097,7 +2097,7 @@ end
 local RenUi = Update:AddWindow("RebornXer Hub","10039618734",Enum.KeyCode.RightControl)
 
 local Main = RenUi:AddTab("Main","6026568198")
-local Check = RenUi:AddTab("Dungeon","6035190846")
+local Dungeon = RenUi:AddTab("Dungeon","6035190846")
 local Misc = RenUi:AddTab("Misc","6034509993")
 local Setting = RenUi:AddTab("","")
 
@@ -2247,6 +2247,7 @@ spawn(function()
                 -- ค้นหามอนสเตอร์ใหม่ทันทีที่ตัวปัจจุบันตาย
                 repeat
                     monster = getFirstMonster()
+                    task.wait(0.1)
                 until not _G.SST.TP_Mon or (monster and monster:FindFirstChildOfClass("Humanoid") and (monster:FindFirstChildOfClass("Humanoid").Health > 0))
 
                 if monster then
@@ -2262,4 +2263,27 @@ spawn(function()
         end)
     end
 end)
+
+Dungeon:AddToggleL("Auto Play Again"_G.SST.Auto_Play_Again,function(q)
+    Auto_Play_Again = q
+    _G.SST.Auto_Play_Again = Auto_Play_Again
+    SS()
+end)
+
+spawn(function()
+    while wait() do
+        pcall(function()
+            if _G.SST.Auto_Play_Again then
+                if game:GetService("Players").LocalPlayer.PlayerGui.MainGui.InstanceCompleteFrame.Visible == true then
+                local args = {
+                    [1] = 69,
+                    [2] = "PlayAgain"
+                }
+                
+                game:GetService("ReplicatedStorage").ReplicaRemoteEvents.Replica_ReplicaSignal:FireServer(unpack(args))
+            end
+            end
+        end)
+        end
+    end)
 
