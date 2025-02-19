@@ -2117,8 +2117,6 @@ local function attackAll()
     end
 end
 
--- ใช้ FastLoop ทำให้โค้ดทำงานไวสุด
-
 ---------------------------------------------------
 local RenUi = Update:AddWindow("RebornXer Hub","10039618734",Enum.KeyCode.RightControl)
 
