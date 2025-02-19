@@ -2158,18 +2158,29 @@ Main:AddToggleL("Attact Aura",_G.SST.Attact_Aura,function(a)
 end)
 
 local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local rootPart = character:WaitForChild("HumanoidRootPart")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local spawnedEntities = workspace:WaitForChild("SpawnedEntities")
 
+local character
+local rootPart
+
+local function updateCharacter()
+    character = player.Character or player.CharacterAdded:Wait()
+    rootPart = character:WaitForChild("HumanoidRootPart")
+end
+
+updateCharacter() -- ตั้งค่าเริ่มต้น
+player.CharacterAdded:Connect(updateCharacter) -- อัปเดตเมื่อเกิดใหม่
+
 local function attackAll()
+    if not rootPart then return end -- ป้องกันข้อผิดพลาดเมื่อ rootPart เป็น nil
+
     local targets = {}
 
     -- ค้นหามอนสเตอร์ที่อยู่ในระยะ + ไม่ตาย
     for _, entity in ipairs(spawnedEntities:GetChildren()) do
         local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
-        local humanoid = entity:FindFirstChildOfClass("Humanoid") -- ดึง Humanoid
+        local humanoid = entity:FindFirstChildOfClass("Humanoid") 
 
         if humanoidRootPart and humanoid and humanoid.Health > 0 then
             local distance = (humanoidRootPart.Position - rootPart.Position).Magnitude
@@ -2179,13 +2190,12 @@ local function attackAll()
         end
     end
 
-    -- โจมตีทุกตัวแบบไม่รอคิว
-    for _, target in ipairs(targets) do
-        task.defer(function()
-            replicatedStorage.PlayerEvents.EntityHit:FireServer(target)
-        end)
+    -- โจมตีทุกตัวพร้อมกัน
+    if #targets > 0 then
+        replicatedStorage.PlayerEvents.EntityHit:FireServer(unpack(targets)) 
     end
 end
+
 spawn(function()
     while game:GetService("RunService").Heartbeat:Wait() do
         pcall(function()
@@ -2195,6 +2205,7 @@ spawn(function()
         end)
     end
 end)
+
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
