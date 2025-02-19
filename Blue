@@ -2097,7 +2097,7 @@ end
 local RenUi = Update:AddWindow("RebornXer Hub","10039618734",Enum.KeyCode.RightControl)
 
 local Main = RenUi:AddTab("Main","6026568198")
-local Check = RenUi:AddTab("Check","6035190846")
+local Check = RenUi:AddTab("ดันเจ้น","6035190846")
 local Misc = RenUi:AddTab("Misc","6034509993")
 local Setting = RenUi:AddTab("","")
 
@@ -2217,32 +2217,44 @@ if not spawnedEntities then
     return
 end
 
--- ฟังก์ชันหามอนสเตอร์ตัวแรก
+-- ฟังก์ชันหามอนสเตอร์ที่มีเลือดมากกว่า 0 เท่านั้น
 local function getFirstMonster()
     for _, entity in pairs(spawnedEntities:GetChildren()) do
-        if entity:IsA("Model") and entity:FindFirstChild("HumanoidRootPart") or entity:FindFirstChild("HumanoidRootPartCollision") then
-            return entity
+        if entity:IsA("Model") then
+            local humanoid = entity:FindFirstChildOfClass("Humanoid")
+            local rootPart = entity:FindFirstChild("HumanoidRootPart") or entity:FindFirstChild("HumanoidRootPartCollision")
+
+            if humanoid and humanoid.Health > 0 and rootPart then
+                return entity
+            end
         end
     end
     return nil
 end
-Main:AddToggleL("TP Mon",_G.SST.TP_Mon,function(a)
+
+Main:AddToggleL("TP Mon", _G.SST.TP_Mon, function(a)
     TP_Mon = a
     _G.SST.TP_Mon = TP_Mon
     SS()
 end)
+
 spawn(function()
     while task.wait(0) do
         pcall(function()
             if _G.SST.TP_Mon then
-                local monster = getFirstMonster()
-                if monster then
-                    local humanoid = monster:FindFirstChildOfClass("Humanoid") -- หา Humanoid
-                    local monsterRoot = monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChild("HumanoidRootPartCollision") -- หา RootPart ของมอนสเตอร์
+                local monster
 
-                    if humanoid and humanoid.Health > 0 and monsterRoot then -- เช็คว่ามีเลือดและมี RootPart
-                            -- วาร์ปไปบนมอนสเตอร์ +20 หน่วย
-                           TP(monsterRoot.CFrame + Vector3.new(0, 10, 0))
+                -- ค้นหามอนสเตอร์ใหม่ทันทีที่ตัวปัจจุบันตาย
+                repeat
+                    monster = getFirstMonster()
+                    task.wait(0.1) -- หน่วงเวลาเล็กน้อยให้หาเป้าหมายใหม่เร็วขึ้น
+                until not _G.SST.TP_Mon or (monster and monster:FindFirstChildOfClass("Humanoid") and (monster:FindFirstChildOfClass("Humanoid").Health > 0))
+
+                if monster then
+                    local monsterRoot = monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChild("HumanoidRootPartCollision")
+                    if monsterRoot then
+                        -- วาร์ปไปบนมอนสเตอร์ +10 หน่วย
+                        TP(monsterRoot.CFrame + Vector3.new(0, 10, 0))
                     end
                 else
                     warn("No monster found in SpawnedEntities!")
