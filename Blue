@@ -2090,33 +2090,7 @@ function TP(Pos)
     end
 end
 
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local rootPart = character:WaitForChild("HumanoidRootPart")
-local replicatedStorage = game:GetService("ReplicatedStorage")
-local spawnedEntities = workspace:WaitForChild("SpawnedEntities")
 
-local function attackAll()
-    local targets = {}
-
-    -- เก็บมอนสเตอร์ทั้งหมดที่อยู่ในระยะลง table ก่อน
-    for _, entity in ipairs(spawnedEntities:GetChildren()) do
-        local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
-            local distance = (humanoidRootPart.Position - rootPart.Position).Magnitude
-            if distance <= 70 then
-                table.insert(targets, entity)
-            end
-        end
-    end
-
-    -- โจมตีทุกตัวแบบไม่รอคิว
-    for _, target in ipairs(targets) do
-        task.defer(function()
-            replicatedStorage.PlayerEvents.EntityHit:FireServer(target)
-        end)
-    end
-end
 
 ---------------------------------------------------
 local RenUi = Update:AddWindow("RebornXer Hub","10039618734",Enum.KeyCode.RightControl)
@@ -2169,20 +2143,51 @@ spawn(function()
         end)
     end
 end)
-_G.SST.Distance_Aura = "70"
+_G.SST.Distance_Aura = _G.SST.Distance_Aura or 70
+_G.SST.Attact_Aura = _G.SST.Attact_Aura or false
+
 Main:AddSliderLeft("Distance Aura",1,200,_G.SST.Distance_Aura,function(a)
-  Distance_Aura = a
-    _G.SST.Distance_Aura = Distance_Aura
-    SS()
-end)
-Main:AddToggleL("Attacht Aura",_G.SST.Attact_Aura,function(a)
-    Attact_Aura = a
-    _G.SST.Attact_Aura = Attact_Aura
+    _G.SST.Distance_Aura = a
     SS()
 end)
 
-spawn(function()
-    while tast.wait(0.2) do
+Main:AddToggleL("Attact Aura",_G.SST.Attact_Aura,function(a)
+    _G.SST.Attact_Aura = a
+    SS()
+end)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local spawnedEntities = workspace:FindFirstChild("SpawnedEntities")
+
+local function attackAll()
+    if not spawnedEntities then return end
+    local event = replicatedStorage:FindFirstChild("PlayerEvents") and replicatedStorage.PlayerEvents:FindFirstChild("EntityHit")
+    if not event then return end
+
+    local targets = {}
+
+    for _, entity in ipairs(spawnedEntities:GetChildren()) do
+        local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            local distance = (humanoidRootPart.Position - rootPart.Position).Magnitude
+            if distance <= _G.SST.Distance_Aura then
+                table.insert(targets, entity)
+            end
+        end
+    end
+
+    for _, target in ipairs(targets) do
+        task.defer(function()
+            event:FireServer(target)
+        end)
+    end
+end
+
+task.spawn(function()
+    while task.wait(0.2) do
         pcall(function()
             if _G.SST.Attact_Aura then
                 attackAll()
