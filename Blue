@@ -2103,17 +2103,7 @@ Main:AddLabelLeft("Map : Blue Heater 2")
 Date = os.date("%d".." ".."%B".." ".."%Y")
 Main:AddLabelLeft("Day : "..Date)
 Main:AddLineLeft("")
-Materialslist = {}
     
-for i,v in pairs(workspace.Materials:GetChildren()) do  
-        table.insert(MaterialsList ,v.Name)
-end
-
-Main:AddDropdownL("Select Materials",Materialslist,_G.SST.Select_Materials,function(a)
-    Select_Materials = a
-_G.SST.Select_Materials = Select_Materials
-SS()
-end)
 
 Main:AddToggleL("Farm Chest",_G.SST.Farm_Chest,function(a)
     Farm_Chest = a
