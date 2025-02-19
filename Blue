@@ -2282,7 +2282,7 @@ spawn(function()
                     local frame = mainGui:FindFirstChild("InstanceCompleteFrame")
                     if frame and frame.Visible then
                         print("Teleporting...") -- เช็คว่าเข้าเงื่อนไขจริง
-                        game:GetService("TeleportService"):Teleport(game.PlaceId, game.JobId)
+                        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, jobid)
                     end
                 end
             end
