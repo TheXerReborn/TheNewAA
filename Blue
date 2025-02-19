@@ -2220,7 +2220,7 @@ end
 -- ฟังก์ชันหามอนสเตอร์ตัวแรก
 local function getFirstMonster()
     for _, entity in pairs(spawnedEntities:GetChildren()) do
-        if entity:IsA("Model") and entity:FindFirstChild("Head") then
+        if entity:IsA("Model") and entity:FindFirstChild("HumanoidRootPart") or entity:FindFirstChild("HumanoidRootPartCollision") then
             return entity
         end
     end
@@ -2242,7 +2242,7 @@ spawn(function()
 
                     if humanoid and humanoid.Health > 0 and monsterRoot then -- เช็คว่ามีเลือดและมี RootPart
                             -- วาร์ปไปบนมอนสเตอร์ +20 หน่วย
-                           TP(monsterRoot.CFrame + Vector3.new(0, 20, 0))
+                           TP(monsterRoot.CFrame + Vector3.new(0, 10, 0))
                     end
                 else
                     warn("No monster found in SpawnedEntities!")
