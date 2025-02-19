@@ -9,11 +9,12 @@ end
 
 pcall(function()
     _G.SST = {
-            Farm_Chest = false,
-            Attact_Aura = false,
-            Distance_Aura = "60"
+        Farm_Chest = false,
+        Attact_Aura = false,
+        Distance_Aura = "60"
     }
 end)
+
 
 function LoadSetting()
     local fileName = "RebornXer Hub Blue Heater 2 [" .. game.Players.LocalPlayer.Name .. "].json"
@@ -2103,7 +2104,7 @@ local function attackAll()
         local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
             local distance = (humanoidRootPart.Position - rootPart.Position).Magnitude
-            if distance <= _G.SST.Distance_Aura then
+            if distance <= 80 then
                 table.insert(targets, entity)
             end
         end
