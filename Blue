@@ -9,7 +9,9 @@ end
 
 pcall(function()
     _G.SST = {
-            Farm_Chest = false
+            Farm_Chest = false,
+            Attact_Aura = false,
+            Distance_Aura = "60"
     }
 end)
 
@@ -2087,6 +2089,36 @@ function TP(Pos)
     end
 end
 
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local spawnedEntities = workspace:WaitForChild("SpawnedEntities")
+
+local function attackAll()
+    local targets = {}
+
+    -- เก็บมอนสเตอร์ทั้งหมดที่อยู่ในระยะลง table ก่อน
+    for _, entity in ipairs(spawnedEntities:GetChildren()) do
+        local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            local distance = (humanoidRootPart.Position - rootPart.Position).Magnitude
+            if distance <= _G.SST.Distance_Aura then
+                table.insert(targets, entity)
+            end
+        end
+    end
+
+    -- โจมตีทุกตัวแบบไม่รอคิว
+    for _, target in ipairs(targets) do
+        task.defer(function()
+            replicatedStorage.PlayerEvents.EntityHit:FireServer(target)
+        end)
+    end
+end
+
+-- ใช้ FastLoop ทำให้โค้ดทำงานไวสุด
+
 ---------------------------------------------------
 local RenUi = Update:AddWindow("RebornXer Hub","10039618734",Enum.KeyCode.RightControl)
 
@@ -2145,3 +2177,24 @@ spawn(function()
         end)
     end
 end)
+Main:AddSliderLeft("Distance Aura",1,200,_G.SST.Distance_Aura,function(a)
+  Distance_Aura = a
+    _G.SST.Distance_Aura = Distance_Aura
+    SS()
+end)
+Main:AddToggleL("Attacht Aura",_G.SST.Attact_Aura,function(a)
+    Attact_Aura = a
+    _G.SST.Attact_Aura = Attact_Aura
+    SS()
+end)
+
+spawn(function()
+    while tast.wait(0.2) do
+        pcall(function()
+            if _G.SST.Attact_Aura then
+                attackAll()
+            end
+        end)
+    end
+end)
+
