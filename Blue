@@ -10,7 +10,7 @@ end
 pcall(function()
     _G.SST = {
         Farm_Chest = false,
-        Attact_Aura = false,
+        Attack_Aura = false,
         Distance_Aura = "60",
         TP_Mon = false,
         Auto_Play_Again = false
@@ -2135,7 +2135,7 @@ spawn(function()
                                     TP(circle.CFrame) -- วาร์ปไปที่ Circle.001
                                     wait(0.2) -- รอให้ตัวละครไปถึง
                                     fireproximityprompt(prompt) -- กด ProximityPrompt
-                                    wait(1) -- หน่วงนิดนึงเพื่อไม่ให้ทำงานซ้ำเร็วเกิน
+                                    wait(0.5) -- หน่วงนิดนึงเพื่อไม่ให้ทำงานซ้ำเร็วเกิน
                                 end
                             end
                         end
@@ -2145,16 +2145,18 @@ spawn(function()
         end)
     end
 end)
-_G.SST.Distance_Aura = _G.SST.Distance_Aura or 70
-_G.SST.Attact_Aura = _G.SST.Attact_Aura or false
 
-Main:AddSliderLeft("Distance Aura",1,200,_G.SST.Distance_Aura,function(a)
+Main:AddSeperatorLeft("Attack Aura")
+_G.SST.Distance_Aura = _G.SST.Distance_Aura or 70
+_G.SST.Attack_Aura = _G.SST.Attack_Aura or false
+
+Main:AddSliderLeft("Distance Aura",1,120,_G.SST.Distance_Aura,function(a)
     _G.SST.Distance_Aura = a
     SS()
 end)
 
-Main:AddToggleL("Attact Aura",_G.SST.Attact_Aura,function(a)
-    _G.SST.Attact_Aura = a
+Main:AddToggleL("Attack Aura",_G.SST.Attack_Aura,function(a)
+    _G.SST.Attack_Aura = a
     SS()
 end)
 
@@ -2198,9 +2200,9 @@ local function attackAll()
 end
 
 spawn(function()
-    while game:GetService("RunService").Heartbeat:Wait() do
+    while game:GetService("RunService").Heartbeat:Wait(0) do
         pcall(function()
-            if _G.SST.Attact_Aura then
+            if _G.SST.Attack_Aura then
                 attackAll()
             end
         end)
@@ -2281,7 +2283,6 @@ spawn(function()
                 if mainGui then
                     local frame = mainGui:FindFirstChild("InstanceCompleteFrame")
                     if frame and frame.Visible then
-                        print("Teleporting...") -- เช็คว่าเข้าเงื่อนไขจริง
                         local args = {
                             [1] = 69,
                             [2] = "PlayAgain"
@@ -2294,5 +2295,4 @@ spawn(function()
         end
     end
 end)
-
 
