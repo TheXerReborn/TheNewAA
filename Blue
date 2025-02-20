@@ -2365,23 +2365,13 @@ end)
 
 Misc:AddSeperatorLeft("Misc")
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Replicate = ReplicatedStorage.PlayerEvents.Replicate
-local RemoteDisabled = false -- ตัวแปรเช็คว่า Remote ถูกปิดอยู่หรือไม่
-
-local function ToggleRemote(disable)
-    RemoteDisabled = disable
-    
-    if RemoteDisabled then
-        -- ปิด Remote โดยการเปลี่ยน OnServerEvent เป็นฟังก์ชันว่าง
-        Replicate.OnServerEvent:Connect(function() end)
-        print("Remote ถูกปิดการใช้งาน")
+function ToggleRemote()
+    if _G.SST.Disable_Fall then
+        game:GetService("ReplicatedStorage").PlayerEvents.Replicate.Parent = workspace
     else
-        -- รีเซ็ต Remote ให้กลับมาใช้งานได้ (ต้องสร้างฟังก์ชันใหม่)
-        Replicate.OnServerEvent:Connect(function(player, ...)
-            print("Remote ทำงาน: ", player.Name, ...)
-        end)
-        print("Remote ถูกเปิดใช้งานอีกครั้ง")
+        game:GetService("ReplicatedStorage").workspace.Replicate.Parent = PlayerEvents
+            -- ใส่โค้ดเดิมที่เคยอยู่ตรงนี้
+        end
     end
 end
 
@@ -2389,8 +2379,9 @@ Misc:AddToggleL("Disable Fall", _G.SST.Disable_Fall, function(state)
     Disable_Fall = state
     _G.SST.Disable_Fall = Disable_Fall
     SS()
-    ToggleRemote(state)
+    ToggleRemote()
 end)
+
 
 Misc:AddToggleL("Auto Block", _G.SST.Auto_Block, function(x)
     Auto_Block = x
