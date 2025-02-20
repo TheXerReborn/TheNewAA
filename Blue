@@ -2309,7 +2309,7 @@ spawn(function()
                     local monsterRoot = monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChild("HumanoidRootPartCollision")
                     if monsterRoot then
                         -- วาร์ปไปบนมอนสเตอร์ +10 หน่วย
-                        TP(monsterRoot.CFrame + Vector3.new(0, 10, 0))
+                        TP(monsterRoot.CFrame + Vector3.new(0, 15, 20))
                     end
                 else
                     warn("No monster found in SpawnedEntities!")
