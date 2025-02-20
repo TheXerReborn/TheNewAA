@@ -2366,18 +2366,23 @@ end)
 Misc:AddSeperatorLeft("Misc")
 
 function ToggleRemote()
-    if _G.SST.Disable_Fall then
-        game:GetService("ReplicatedStorage").PlayerEvents.Replicate.Parent = workspace
-    else
-        game:GetService("ReplicatedStorage").workspace.Replicate.Parent = PlayerEvents
-            -- ใส่โค้ดเดิมที่เคยอยู่ตรงนี้
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local PlayerEvents = ReplicatedStorage:FindFirstChild("PlayerEvents")
+    
+    if PlayerEvents then
+        local Replicate = PlayerEvents:FindFirstChild("Replicate")
+        if Replicate then
+            if _G.SST.Disable_Fall then
+                Replicate.Parent = workspace
+            else
+                Replicate.Parent = PlayerEvents
+            end
         end
     end
 end
 
 Misc:AddToggleL("Disable Fall", _G.SST.Disable_Fall, function(state)
-    Disable_Fall = state
-    _G.SST.Disable_Fall = Disable_Fall
+    _G.SST.Disable_Fall = state
     SS()
     ToggleRemote()
 end)
