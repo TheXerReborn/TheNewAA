@@ -13,7 +13,8 @@ pcall(function()
         Attack_Aura = false,
         Distance_Aura = "60",
         TP_Mon = false,
-        Auto_Play_Again = false
+        Auto_Play_Again = false,
+		Black_Screen = false
     }
 end)
 
@@ -2111,7 +2112,61 @@ Date = os.date("%d".." ".."%B".." ".."%Y")
 Main:AddLabelLeft("Day : "..Date)
 Main:AddLineLeft("")
     
+Main:AddSeperatorRight("Setting")
 
+local player = game:GetService("Players").LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local blackScreenUI = nil
+
+-- ฟังก์ชันสำหรับเปิด/ปิดจอดำ
+local function toggleBlackScreen(enable)
+    if not enable then
+        -- ถ้าปิดจอดำ ให้ซ่อน UI
+        if blackScreenUI then
+            blackScreenUI.Enabled = false
+        end
+        return
+    end
+
+    -- ถ้าจอดำมีอยู่แล้ว ให้แสดง UI
+    if blackScreenUI then
+        blackScreenUI.Enabled = true
+        return
+    end
+
+    -- สร้าง UI จอดำใหม่
+    blackScreenUI = Instance.new("ScreenGui")
+    blackScreenUI.Name = "Blackscreen"
+    blackScreenUI.DisplayOrder = 1 -- ให้แสดงอยู่เหนือ UI อื่นๆ
+    blackScreenUI.ResetOnSpawn = false -- UI จะไม่หายไปเมื่อผู้เล่นตายหรือเกิดใหม่
+    blackScreenUI.IgnoreGuiInset = true -- ให้จอดำครอบคลุมพื้นที่เต็มจอ
+    blackScreenUI.Parent = playerGui
+
+    -- สร้างเฟรมสีดำ
+    local uiFrame = Instance.new("Frame")
+    uiFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- สีดำสนิท
+    uiFrame.Size = UDim2.new(1, 0, 1, 0) -- เต็มหน้าจอ
+    uiFrame.Position = UDim2.new(0, 0, 0, 0) -- มุมบนซ้าย
+    uiFrame.BorderSizePixel = 0 -- ไม่มีขอบ
+    uiFrame.Parent = blackScreenUI
+end
+
+-- เปลี่ยนมาใช้ตัวแปรแทนการเก็บสถานะใน _G
+-- เพิ่มปุ่ม toggle (สมมติว่า Misc:AddToggleR เป็นฟังก์ชันจากระบบที่ใช้งานอยู่)
+Main:AddToggleR("Black Screen",_G.SST.Black_Screen, function(value)
+    Black_Screen = value
+	_G.SST.Black_Screen = Black_Screen
+    SS() -- ฟังก์ชันเพิ่มเติมที่คุณมีในระบบ
+    if value then
+        -- ปิดการแสดงผล 3D และเปิดจอดำ
+        game:GetService("RunService"):Set3dRenderingEnabled(false)
+        toggleBlackScreen(true)
+    else
+        -- เปิดการแสดงผล 3D และปิดจอดำ
+        game:GetService("RunService"):Set3dRenderingEnabled(true)
+        toggleBlackScreen(false)
+    end
+end)
 Main:AddToggleL("Farm Chest",_G.SST.Farm_Chest,function(a)
     Farm_Chest = a
 _G.SST.Farm_Chest = Farm_Chest
@@ -2247,7 +2302,7 @@ spawn(function()
                 -- ค้นหามอนสเตอร์ใหม่ทันทีที่ตัวปัจจุบันตาย
                 repeat
                     monster = getFirstMonster()
-                    task.wait(0.01)
+                    task.wait(0.03)
                 until not _G.SST.TP_Mon or (monster and monster:FindFirstChildOfClass("Humanoid") and (monster:FindFirstChildOfClass("Humanoid").Health > 0))
 
                 if monster then
