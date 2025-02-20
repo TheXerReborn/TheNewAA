@@ -2309,10 +2309,11 @@ spawn(function()
                 -- ค้นหามอนสเตอร์ใหม่ทันทีที่ตัวปัจจุบันตาย
                 repeat
                     monster = getFirstMonster()
+                    game:GetService("RunService").Heartbeat:Wait()
                 until not _G.SST.TP_Mon or (monster and monster:FindFirstChildOfClass("Humanoid") and (monster:FindFirstChildOfClass("Humanoid").Health > 0))
 
 
-                
+            
                 if monster then
                     local monsterRoot = monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChild("HumanoidRootPartCollision")
                     if monsterRoot then
@@ -2370,30 +2371,13 @@ end)
 Misc:AddSeperatorLeft("Misc")
 
 while wait() do
-    local replicatedStorage = game:GetService("ReplicatedStorage")
-
-    -- ตรวจสอบว่า PlayerEvents มีอยู่หรือไม่ ถ้าไม่มีให้สร้างใหม่
-    local playerEvents = replicatedStorage:FindFirstChild("PlayerEvents")
-    if not playerEvents then
-        playerEvents = Instance.new("Folder")
-        playerEvents.Name = "PlayerEvents"
-        playerEvents.Parent = replicatedStorage
-    end
-
-    local replicate = playerEvents:FindFirstChild("Replicate")
-
     if _G.SST.Disable_Fall then
-        if replicate then
-            replicate:Destroy()
-        end
-    else
-        if not replicate then
-            local newReplicate = Instance.new("RemoteEvent")
-            newReplicate.Name = "Replicate"
-            newReplicate.Parent = playerEvents
+        if game:GetService("ReplicatedStorage").PlayerEvents.Replicate then
+            game:GetService("ReplicatedStorage").PlayerEvents.Replicate:Destroy()
         end
     end
 end
+
 
 
 Misc:AddToggleL("Disable Fall", _G.SST.Disable_Fall, function(state)
