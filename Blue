@@ -2214,8 +2214,8 @@ Main:AddSliderLeft("Distance Aura", 1, 200, _G.SST.Distance_Aura, function(a)
     SS()
 end)
 
-Main:AddToggleL("Attact Aura", _G.SST.Attact_Aura, function(a)
-    _G.SST.Attact_Aura = a
+Main:AddToggleL("Attack Aura", _G.SST.Attack_Aura, function(a)
+    _G.SST.Attack_Aura = a
     SS()
 end)
 
@@ -2234,7 +2234,7 @@ updateCharacter()
 player.CharacterAdded:Connect(updateCharacter)
 
 local function attackAll()
-    if not rootPart or not _G.SST.Attact_Aura then return end
+    if not rootPart or not _G.SST.Attack_Aura then return end
     
     local maxDistance = _G.SST.Distance_Aura
     local targets = {}
@@ -2261,7 +2261,7 @@ end
 task.spawn(function()
     local runService = game:GetService("RunService")
     runService.Heartbeat:Connect(function()
-        if _G.SST.Attact_Aura then
+        if _G.SST.Attack_Aura then
             attackAll()
         end
     end)
@@ -2370,13 +2370,23 @@ end)
 
 Misc:AddSeperatorLeft("Misc")
 spawn(function()
-while wait() do
-    if _G.SST.Disable_Fall then
-        if game:GetService("ReplicatedStorage").PlayerEvents.Replicate then
-            game:GetService("ReplicatedStorage").PlayerEvents.Replicate:Destroy()
+    while wait() do
+        local replicatedStorage = game:GetService("ReplicatedStorage")
+        local playerEvents = replicatedStorage:FindFirstChild("PlayerEvents")
+    
+        if _G.SST.Disable_Fall then
+            if playerEvents and playerEvents:FindFirstChild("Replicate") then
+                playerEvents.Replicate:Destroy()
+            end
+        else
+            if playerEvents and not playerEvents:FindFirstChild("Replicate") then
+                local newReplicate = Instance.new("RemoteEvent")
+                newReplicate.Name = "Replicate"
+                newReplicate.Parent = playerEvents
+            end
         end
     end
-end
+    
 end)
 
 Misc:AddToggleL("Disable Fall", _G.SST.Disable_Fall, function(state)
@@ -2397,8 +2407,6 @@ while task.wait(0) do
     pcall(function()
     if _G.SST.Auto_Block then
         game:GetService("ReplicatedStorage").PlayerEvents.BlockEvents.Block:InvokeServer(true)
-            workspace.BKLONZ.Values.GuardPower.Value = math.huge
-            workspace.BKLONZ.Values.GuardPower:SetAttribute("Max", math.huge)
     end
     end)
     end
