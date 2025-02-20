@@ -2100,7 +2100,9 @@ local RenUi = Update:AddWindow("RebornXer Hub","10039618734",Enum.KeyCode.RightC
 
 local Main = RenUi:AddTab("Main","6026568198")
 local Dungeon = RenUi:AddTab("Dungeon","6035190846")
+local Tower = RenUi:AddTab("Tower","6034509993")
 local Misc = RenUi:AddTab("Misc","6034509993")
+
 local Setting = RenUi:AddTab("","")
 
 local S = RenUi:AddTabH("Top","14134158045")
@@ -2302,14 +2304,13 @@ spawn(function()
                 -- ค้นหามอนสเตอร์ใหม่ทันทีที่ตัวปัจจุบันตาย
                 repeat
                     monster = getFirstMonster()
-                    task.wait(0.03)
                 until not _G.SST.TP_Mon or (monster and monster:FindFirstChildOfClass("Humanoid") and (monster:FindFirstChildOfClass("Humanoid").Health > 0))
 
                 if monster then
                     local monsterRoot = monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChild("HumanoidRootPartCollision")
                     if monsterRoot then
                         -- คำนวณตำแหน่งด้านหลังของมอนสเตอร์
-                        local backOffset = monsterRoot.CFrame.LookVector * -10 -- ไปด้านหลัง 20 หน่วย
+                        local backOffset = monsterRoot.CFrame.LookVector * -5 -- ไปด้านหลัง 20 หน่วย
                         local upOffset = Vector3.new(0, 15, 0) -- ขึ้นไป 15 หน่วย
                         local targetPosition = monsterRoot.CFrame.Position + backOffset + upOffset
 
@@ -2352,3 +2353,5 @@ spawn(function()
         end
     end
 end)
+Misc:AddSeperatorLeft("Misc")
+
