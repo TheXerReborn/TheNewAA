@@ -2369,7 +2369,7 @@ spawn(function()
 end)
 
 Misc:AddSeperatorLeft("Misc")
-
+spawn(function()
 while wait() do
     if _G.SST.Disable_Fall then
         if game:GetService("ReplicatedStorage").PlayerEvents.Replicate then
@@ -2377,8 +2377,7 @@ while wait() do
         end
     end
 end
-
-
+end)
 
 Misc:AddToggleL("Disable Fall", _G.SST.Disable_Fall, function(state)
     Disable_Fall = state
