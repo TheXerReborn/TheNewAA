@@ -2335,7 +2335,8 @@ Dungeon:AddToggleL("Auto Play Again",_G.SST.Auto_Play_Again,function(q)
 end)
 
 spawn(function()
-    while wait() do
+    local count = 1
+    while task.wait() do
         if _G.SST and _G.SST.Auto_Play_Again then
             local player = game:GetService("Players").LocalPlayer
             local gui = player:FindFirstChild("PlayerGui")
@@ -2345,17 +2346,23 @@ spawn(function()
                     local frame = mainGui:FindFirstChild("InstanceCompleteFrame")
                     if frame and frame.Visible then
                         local args = {
-                            [1] = 69,
+                            [1] = count, -- นับเลขขึ้นไปเรื่อยๆ
                             [2] = "PlayAgain"
                         }
                         
                         game:GetService("ReplicatedStorage").ReplicaRemoteEvents.Replica_ReplicaSignal:FireServer(unpack(args))
+
+                        count = count + 1
+                        if count > 100 then
+                            count = 1 -- รีเซ็ตกลับไปที่ 1
+                        end
                     end
                 end
             end
         end
     end
 end)
+
 Misc:AddSeperatorLeft("Misc")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
