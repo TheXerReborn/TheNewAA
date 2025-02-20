@@ -2198,12 +2198,13 @@ end
 
 task.spawn(function()
     local runService = game:GetService("RunService")
-    while runService.Heartbeat:Wait()do     
+    runService.Heartbeat:Connect(function()
         if _G.SST.Attact_Aura then
-        attackAll()
-          end
-    end
+            attackAll()
+        end
+    end)
 end)
+
 
 
 local Players = game:GetService("Players")
