@@ -2304,6 +2304,7 @@ spawn(function()
                 -- ค้นหามอนสเตอร์ใหม่ทันทีที่ตัวปัจจุบันตาย
                 repeat
                     monster = getFirstMonster()
+					task.wait(0.01)
                 until not _G.SST.TP_Mon or (monster and monster:FindFirstChildOfClass("Humanoid") and (monster:FindFirstChildOfClass("Humanoid").Health > 0))
 
                 if monster then
