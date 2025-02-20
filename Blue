@@ -14,7 +14,8 @@ pcall(function()
         Distance_Aura = "60",
         TP_Mon = false,
         Auto_Play_Again = false,
-		Black_Screen = false
+		Black_Screen = false,
+        Disable_Fall = false
     }
 end)
 
@@ -2356,3 +2357,32 @@ spawn(function()
 end)
 Misc:AddSeperatorLeft("Misc")
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Replicate = ReplicatedStorage.PlayerEvents.Replicate
+
+local OriginalOnServerEvent -- เก็บค่าเดิมของ OnServerEvent
+
+local function ToggleRemote(disable)
+    if disable then
+        -- บันทึกค่าเดิมของ OnServerEvent ก่อนปิด
+        if not OriginalOnServerEvent then
+            OriginalOnServerEvent = Replicate.OnServerEvent
+        end
+
+        -- ปิด Remote โดยการเปลี่ยนเป็นฟังก์ชันว่าง
+        Replicate.OnServerEvent = function() end
+        print("Remote ถูกปิดการใช้งาน")
+    else
+        -- คืนค่า OnServerEvent กลับเป็นค่าเดิม
+        if OriginalOnServerEvent then
+            Replicate.OnServerEvent = OriginalOnServerEvent
+            print("Remote กลับมาใช้งานได้ตามปกติ")
+        end
+    end
+end
+
+-- ใช้ Toggle จาก GUI
+Misc:AddToggleL("Disable Fall", _G.SST.Disable_Fall, function(state)
+    _G.SST.Disable_Fall = state
+    ToggleRemote(state)
+end)
