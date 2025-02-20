@@ -2237,21 +2237,24 @@ local function attackAll()
     if not rootPart or not _G.SST.Attact_Aura then return end
     
     local maxDistance = _G.SST.Distance_Aura
-    local targets = table.create(#spawnedEntities:GetChildren())
-    
+    local targets = {}
+
     for _, entity in ipairs(spawnedEntities:GetChildren()) do
         local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
         local humanoid = entity:FindFirstChildOfClass("Humanoid")
 
         if humanoidRootPart and humanoid and humanoid.Health > 0 then
             if (humanoidRootPart.Position - rootPart.Position).Magnitude <= maxDistance then
-                targets[#targets + 1] = entity
+                table.insert(targets, entity)
             end
         end
     end
-    
-    if #targets > 0 then
-        replicatedStorage.PlayerEvents.EntityHit:FireServer(unpack(targets))
+
+    -- โจมตีทุกเป้าหมายที่พบ
+    for _, target in ipairs(targets) do
+        task.spawn(function()
+            replicatedStorage.PlayerEvents.EntityHit:FireServer(target)
+        end)
     end
 end
 
@@ -2305,10 +2308,10 @@ spawn(function()
 
                 -- ค้นหามอนสเตอร์ใหม่ทันทีที่ตัวปัจจุบันตาย
                 repeat
-                    monster = getFirstMonster()
-					task.wait(0)
-                until not _G.SST.TP_Mon or (monster and monster:FindFirstChildOfClass("Humanoid") and (monster:FindFirstChildOfClass("Humanoid").Health > 0))
-
+                    local monster = getFirstMonster()
+                    local humanoid = monster and monster:FindFirstChildOfClass("Humanoid")
+                until not _G.SST.TP_Mon or (humanoid and humanoid.Health > 0)
+                
                 if monster then
                     local monsterRoot = monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChild("HumanoidRootPartCollision")
                     if monsterRoot then
@@ -2366,10 +2369,22 @@ end)
 Misc:AddSeperatorLeft("Misc")
 
 while wait() do
+    local replicatedStorage = game:GetService("ReplicatedStorage")
+    local playerEvents = replicatedStorage:FindFirstChild("PlayerEvents")
+
     if _G.SST.Disable_Fall then
-        game:GetService("ReplicatedStorage").PlayerEvents.Replicate:Destroy()
+        if playerEvents and playerEvents:FindFirstChild("Replicate") then
+            playerEvents.Replicate:Destroy()
+        end
+    else
+        if playerEvents and not playerEvents:FindFirstChild("Replicate") then
+            local newReplicate = Instance.new("RemoteEvent")
+            newReplicate.Name = "Replicate"
+            newReplicate.Parent = playerEvents
+        end
     end
 end
+
 Misc:AddToggleL("Disable Fall", _G.SST.Disable_Fall, function(state)
     Disable_Fall = state
     _G.SST.Disable_Fall = Disable_Fall
