@@ -1,5 +1,13 @@
+------------------Wait Game load
+if not game:IsLoaded() then
+	repeat game.Loaded:Wait() 
+	until game:IsLoaded() 
+end
+----------------------------------- save
+
+
 function loadcheck()
-    local fileName = "RebornXer Hub Blue Heater 2 [" .. game.Players.LocalPlayer.Name .. "].json"
+    local fileName = "RebornXer Hub Anime Adventures [" .. game.Players.LocalPlayer.Name .. "].json"
     
     if not isfile(fileName) then
         writefile(fileName, game:GetService("HttpService"):JSONEncode(_G.SST))
@@ -9,18 +17,37 @@ end
 
 pcall(function()
     _G.SST = {
-        Farm_Chest = false,
-        Attack_Aura = false,
-        Distance_Aura = "60",
-        TP_Mon = false,
-        Auto_Play_Again = false,
-		Black_Screen = false
+        Select_Map = "",
+        Select_Act = "",
+        Select_Mode = "",
+        Select_Friend_Only = false,
+        Auto_Join = false,
+        Auto_ReJoin = false,
+        Farm_Sukuna = false,
+        Select_Farme_Rate = "60",
+        Auto_Rejoin_Kick = true,
+        Boost_Fps = false,
+        Black_Screen = false,
+        Sent_WebHook = false,
+        WebHook_Link = "",
+        Auto_Back_To_Lobby = false,
+        Farm_Gem = false,
+        Auto_Farm_HolidayStars = false,
+        Farm_Level = false,
+        Anti_AFK = true,
+        Auto_Upgrade_Unit = false,
+        Select_To_Upgrade = "All Unit",
+        Feed_Easter = false,
+        Claim_Easter = false,
+		Summon_Unit = false,
+		Select_Banner = "Legacy",
+		Select_Amount_Banner = "1",
+		Auto_Stars = false
     }
 end)
 
-
 function LoadSetting()
-    local fileName = "RebornXer Hub Blue Heater 2 [" .. game.Players.LocalPlayer.Name .. "].json"
+    local fileName = "RebornXer Hub Anime Adventures [" .. game.Players.LocalPlayer.Name .. "].json"
     if isfile(fileName) then
         local fileContent = readfile(fileName)
         local success, decoded = pcall(function()
@@ -36,7 +63,7 @@ function LoadSetting()
 end
 
 function SS()
-    local fileName = "RebornXer Hub Blue Heater 2 [" .. game.Players.LocalPlayer.Name .. "].json"
+    local fileName = "RebornXer Hub Anime Adventures [" .. game.Players.LocalPlayer.Name .. "].json"
     
     if isfile(fileName) then
         writefile(fileName, game:GetService("HttpService"):JSONEncode(_G.SST))
@@ -2081,25 +2108,49 @@ end
 	end
 	return uitab
 end
----------------------------------------------------
 
-function TP(Pos)
-    local player = game.Players.LocalPlayer
-    local character = player.Character
+------------------------------------ Function -------------------------------
+function Tp(Pos)
+    local py = game.Players.LocalPlayer
+    local Npy = py.Name
+    local character = workspace:FindFirstChild(Npy) -- ค้นหาโมเดลของผู้เล่นใน workspace
+
     if character and character:FindFirstChild("HumanoidRootPart") then
-        character.HumanoidRootPart.CFrame = Pos
+        if typeof(Pos) == "CFrame" then
+            character.HumanoidRootPart.CFrame = Pos -- หาก Pos เป็น CFrame ใช้ได้โดยตรง
+        elseif typeof(Pos) == "Vector3" then
+            character.HumanoidRootPart.CFrame = CFrame.new(Pos) -- หาก Pos เป็น Vector3 แปลงเป็น CFrame
+        else
+            warn("Invalid Pos type. Expected CFrame or Vector3.")
+        end
     else
-        warn("Character or HumanoidRootPart not found!")
+        warn("Character or HumanoidRootPart not found for player: " .. Npy)
     end
 end
 
 
 
----------------------------------------------------
+    function Upgrade(PartUnit)
+        game:GetService("ReplicatedStorage").endpoints.client_to_server.upgrade_unit_ingame:InvokeServer(PartUnit)
+    end
+
+function SelectMapJoin(Box,Map,Act,FriendOnly,Mode)
+
+    game:GetService("ReplicatedStorage").endpoints.client_to_server.request_lock_level:InvokeServer(Box,Map.."_"..Act.."",FriendOnly,""..Mode)
+end
+
+function PlaceUnit(CodeUnit,CFrameUnit)
+    game:GetService("ReplicatedStorage").endpoints.client_to_server.spawn_unit:InvokeServer(CodeUnit, CFrame.new(CFrameUnit))
+end
+
+function SelectNext(Select)
+    game:GetService("ReplicatedStorage").endpoints.client_to_server.set_game_finished_vote:InvokeServer(Select)
+end
+----------------------------- Ui Set
 local RenUi = Update:AddWindow("RebornXer Hub","10039618734",Enum.KeyCode.RightControl)
 
 local Main = RenUi:AddTab("Main","6026568198")
-local Dungeon = RenUi:AddTab("Dungeon","6035190846")
+local Check = RenUi:AddTab("Check","6035190846")
 local Misc = RenUi:AddTab("Misc","6034509993")
 local Setting = RenUi:AddTab("","")
 
@@ -2107,13 +2158,633 @@ local S = RenUi:AddTabH("Top","14134158045")
 
 Main:AddSeperatorLeft("Info")
 Main:AddLabelLeft("Wecome To RebornXer Hub Script")
-Main:AddLabelLeft("Map : Blue Heater 2")
+Main:AddLabelLeft("Map : Anime Adventures")
 Date = os.date("%d".." ".."%B".." ".."%Y")
 Main:AddLabelLeft("Day : "..Date)
 Main:AddLineLeft("")
-    
-Main:AddSeperatorRight("Setting")
 
+Main:AddSeperatorLeft("Join Map")
+
+local MapList = {
+    "namek",
+    "aot",
+    "demonslayer",
+    "naruto",
+    "marineford",
+    "tokyo_ghoul",
+    "hueco",
+    "hxhant",
+    "magnolia",
+    "jjk",
+    "clover",
+    "jojo",
+    "opm",
+    "7ds",
+    "mha",
+    "dressrosa",
+    "sao",
+    "berserk",
+    "overlord",
+    "fate",
+    "amegakure"
+}
+
+
+Main:AddDropdownL("Select Map",MapList,_G.SST.Select_Map,function(Value)
+    Select_Map = Value
+    _G.SST.Select_Map = Select_Map
+    SS()
+end)
+ActList = {"1","2","3","4","5","6","Infinite"}
+
+Main:AddDropdownL("Select Act",ActList,_G.SST.Select_Act,function(Value)
+    Select_Act = Value
+    _G.SST.Select_Act = Select_Act
+    SS()
+end)
+spawn(function()
+	while true do
+		pcall(function()
+		    if _G.SST.Select_Act == "1" then
+        _G.Act_Select = "level_1"
+    elseif _G.SST.Select_Act == "2" then
+        _G.Act_Select = "level_2"
+    elseif _G.SST.Select_Act == "3" then
+        _G.Act_Select = "level_3"
+    elseif _G.SST.Select_Act == "4" then
+        _G.Act_Select = "level_4"
+    elseif _G.SST.Select_Act == "5" then
+        _G.Act_Select = "level_5"
+    elseif _G.SST.Select_Act == "6" then
+        _G.Act_Select = "level_6"
+    elseif _G.SST.Select_Act == "Infinite" then
+        _G.Act_Select = "infinite"
+    end
+	end)
+		wait()
+	end
+end)
+
+
+ModeList = {"Normal","Hard"}
+Main:AddDropdownL("Select Mode",ModeList,_G.SST.Select_Mode,function(Value)
+    Select_Mode = Value
+    _G.SST.Select_Mode = Select_Mode
+    SS()
+end)
+
+Main:AddToggleL("Select Friend Only",_G.SST.Select_Friend_Only,function(value)
+    Select_Friend_Only = value
+    _G.SST.Select_Friend_Only = Select_Friend_Only
+    SS()
+end)
+spawn(function()
+	while wait() do
+		pcall(function()
+		if _G.SST.Select_Friend_Only then
+			_G.Fraiend_Only = "true"
+			else
+				_G.Fraiend_Only = "false"
+				end
+				end)
+		end
+	end)
+Main:AddToggleL("Auto Join",_G.SST.Auto_Join,function(value)
+    Auto_Join = value
+    _G.SST.Auto_Join = Auto_Join
+    SS()
+end)
+
+	spawn(function()
+		while wait() do
+			pcall(function()
+				if _G.SST.Auto_Join then
+					for i, Room in pairs(workspace._LOBBIES.Story:GetChildren()) do
+						if Room:FindFirstChild("Timer") and Room.Timer.Value == -1 then
+							-- ตรวจสอบค่า arguments ก่อนเรียกใช้
+							local args = {
+								[1] = Room.Name,
+								[2] = _G.SST.Select_Map.."_".._G.Act_Select,
+								[3] = true,
+								[4] = _G.SST.Select_Mode
+							}
+							print("Arguments: ", args[1], args[2], args[3], args[4])  -- ตรวจสอบค่าก่อนเรียก
+							game:GetService("ReplicatedStorage").endpoints.client_to_server.request_join_lobby:InvokeServer(Room.Name)
+
+							game:GetService("ReplicatedStorage").endpoints.client_to_server.request_lock_level:InvokeServer(unpack(args))
+							wait(2)
+       game:GetService("ReplicatedStorage").endpoints.client_to_server.request_start_game:InvokeServer(Room.Name)
+							
+						end
+					end
+				end
+			end)
+		end
+	end)
+
+
+Main:AddSeperatorRight("Game Setting")
+
+
+Main:AddToggleR("Auto vote Stars",_G.SST.Auto_Stars,function(a)
+	Auto_Stars = a
+	_G.SST.Auto_Stars = Auto_Stars
+	SS()
+end)
+
+spawn(function()
+	while wait() do
+		pcall(function()
+			if _G.SST.Auto_Stars then
+				if game:GetService("Players").LocalPlayer.PlayerGui.VoteStart.Enabled == true then
+					game:GetService("ReplicatedStorage").endpoints.client_to_server.vote_start:InvokeServer()
+				end
+			end
+		end)
+	end
+end)
+		
+
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+if not _G.SST then
+    _G.SST = {}
+end
+
+local lastCheck = 0  -- ตัวแปรเก็บเวลาล่าสุดที่เรียกฟังก์ชัน
+local checkInterval = 1  -- เช็คทุกๆ 1 วินาที (ปรับค่าได้)
+
+local function handleBackToLobby()
+    local player = Players.LocalPlayer
+    local resultsUI = player.PlayerGui:FindFirstChild("ResultsUI")
+    
+    if resultsUI and resultsUI.Enabled then
+        ReplicatedStorage.endpoints.client_to_server.teleport_back_to_lobby:InvokeServer()
+    end
+end
+
+local function handleReJoin()
+    local player = Players.LocalPlayer
+    local resultsUI = player.PlayerGui:FindFirstChild("ResultsUI")
+    
+    if resultsUI and resultsUI.Enabled then
+        ReplicatedStorage.endpoints.client_to_server.set_game_finished_vote:InvokeServer("replay")
+    end
+end
+
+-- สร้างตัวเลือก Auto Back To Lobby
+Main:AddToggleR("Auto Back To Lobby", _G.SST.Auto_Back_To_Lobby or false, function(value)
+    _G.SST.Auto_Back_To_Lobby = value
+end)
+
+-- สร้างตัวเลือก Auto ReJoin
+Main:AddToggleR("Auto ReJoin", _G.SST.Auto_ReJoin or false, function(value)
+    _G.SST.Auto_ReJoin = value
+end)
+
+-- ใช้ RunService.Heartbeat พร้อมตัวจับเวลา
+RunService.Heartbeat:Connect(function()
+    if tick() - lastCheck >= checkInterval then
+        lastCheck = tick()  -- อัปเดตเวลาล่าสุด
+        
+        if _G.SST.Auto_Back_To_Lobby then
+            handleBackToLobby()
+        end
+        if _G.SST.Auto_ReJoin then
+            handleReJoin()
+        end
+    end
+end)
+
+Main:AddSeperatorRight("Game")
+Main:AddDropdownR("Select To upgrade",{"All Unit","Cost Unit"},_G.SST.Select_To_Upgrade,function(a)
+	Select_To_Upgrade = a
+_G.SST.Select_To_Upgrade = Select_To_Upgrade
+SS()
+end)
+
+
+	
+Main:AddToggleR("Auto Upgrade Unit",_G.SST.Auto_Upgrade_Unit,function(a)
+	Auto_Upgrade_Unit = a
+	_G.SST.Auto_Upgrade_Unit = Auto_Upgrade_Unit
+	SS()
+end)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local upgradeEndpoint = ReplicatedStorage.endpoints.client_to_server.upgrade_unit_ingame
+local UnitsFolder = workspace._UNITS
+local Player = game:GetService("Players").LocalPlayer
+
+-- ฟังก์ชันช่วยกรองยูนิต
+local function getUpgradeableUnits(filter)
+    local upgradeableUnits = {}
+    for _, unit in ipairs(UnitsFolder:GetChildren()) do
+        if unit:IsA("Model") and unit:GetAttribute("range_stat") then
+            local stats = unit:FindFirstChild("_stats")
+            if stats and stats.player and stats.player.Value == Player then
+                if filter == "Cost Unit" then
+                    if unit.Name == "bulma" or unit.Name == "bulma:shiny" or unit.Name == "bulma:shiny:golden" or
+                       unit.Name == "speedwagon" or unit.Name == "speedwagon:shiny" or unit.Name == "speedwagon:shiny:golden" or
+                       unit.Name == "speedwagon:golden" then
+                        table.insert(upgradeableUnits, unit)
+                    end
+                elseif filter == "All Unit" then
+                    table.insert(upgradeableUnits, unit)
+                end
+            end
+        end
+    end
+    return upgradeableUnits
+end
+
+-- ลูปหลักสำหรับอัปเกรดยูนิต
+spawn(function()
+    while true do
+        local success, err = pcall(function()
+            if _G.SST and _G.SST.Auto_Upgrade_Unit then
+                local filter = _G.SST.Select_To_Upgrade
+                local unitsToUpgrade = getUpgradeableUnits(filter)
+
+                for _, unit in ipairs(unitsToUpgrade) do
+                    local success, err = pcall(function()
+                        upgradeEndpoint:InvokeServer(unit)
+                    end)
+
+                    if not success then
+                        warn("Error invoking upgrade_unit_ingame: " .. tostring(err))
+                    else
+                        print("Upgraded unit: " .. unit.Name)
+                    end
+                end
+            end
+        end)
+
+        if not success then
+            warn("Error in auto-upgrade loop: " .. tostring(err))
+        end
+
+       task.wait(0) -- รอแค่ 0.03 วินาที
+    end
+end)
+
+
+Main:AddSeperatorRight("Summon")
+Main:AddDropdownR("Select Banner",{"Sakamoto Event","HolidayStars Event","Special","Legacy"},_G.SST.Select_Banner,function(a)
+	Select_Banner = a
+	_G.SST.Select_Banner = Select_Banner
+SS()
+	if _G.SST.Select_Banner == "Sakamoto Event" then
+	_G.Banner_Select = "SakamotoEvent"
+	elseif _G.SST.Select_Banner == "HolidayStars Event" then
+	_G.Banner_Select = "Christmas2024"
+	elseif _G.SST.Select_Banner == "Special" then
+	_G.Banner_Select = "EventClover"
+	elseif _G.SST.Select_Banner == "Legacy" then
+	_G.Banner_Select = "Legacy"
+	end
+end)
+Main:AddDropdownR("Select Amount Banner",{"10","1","ticket"},_G.SST.Select_Amount_Banner,function(a)
+	Select_Amount_Banner = a
+	_G.SST.Select_Amount_Banner = Select_Amount_Banner
+SS()
+if _G.SST.Select_Amount_Banner == "10" then
+	_G.Amount_Banner = "gems10"
+elseif _G.SST.Select_Amount_Banner == "1" then
+	_G.Amount_Banner = "gems1"
+elseif _G.SST.Select_Amount_Banner == "ticket" then
+	_G.Amount_Banner = "ticket"
+end
+end)
+Main:AddToggleR("Summon Unit",_G.SST.Summon_Unit,function(a)
+	Summon_Unit = a
+	_G.SST.Summon_Unit = Summon_Unit
+	SS()
+end)
+
+spawn(function()
+	while task.wait(0.2) do
+		pcall(function()
+			if _G.SST.Summon_Unit then
+				game:GetService("ReplicatedStorage").endpoints.client_to_server.buy_from_banner:InvokeServer(_G.Banner_Select,_G.Amount_Banner)
+			end
+		end)
+	end
+end)
+
+Main:AddSeperatorLeft("Farm")
+
+Main:AddToggleL("Auto Farm Level",_G.SST.Farm_Level,function(a)
+	Farm_Level = a
+_G.SST.Farm_Level = Farm_Level
+SS()
+end)
+spawn(function()
+		while wait() do
+			pcall(function()
+				if _G.SST.Farm_Level then
+					for i, Room in pairs(workspace._LOBBIES.Story:GetChildren()) do
+						if Room:FindFirstChild("Timer") and Room.Timer.Value == -1 then
+							-- ตรวจสอบค่า arguments ก่อนเรียกใช้
+							local args = {
+								[1] = Room.Name,
+								[2] = "namek_level_1",
+								[3] = true,
+								[4] = "Hard"
+							}
+							game:GetService("ReplicatedStorage").endpoints.client_to_server.request_join_lobby:InvokeServer(Room.Name)
+
+							game:GetService("ReplicatedStorage").endpoints.client_to_server.request_lock_level:InvokeServer(unpack(args))
+							wait(2)
+      						game:GetService("ReplicatedStorage").endpoints.client_to_server.request_start_game:InvokeServer(Room.Name)
+							
+						end
+					end
+				end
+			end)
+		end
+	end)
+
+
+	
+	local unitId = "{46c72326-665b-4a1c-9bf4-24fbee7317a1}"
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local spawnUnit = replicatedStorage.endpoints.client_to_server.spawn_unit
+
+local spawnPositionsFarm = {
+    Vector3.new(-2939.32568359375, 91.80620574951172, -704.94287109375),
+    Vector3.new(-2938.983642578125, 91.80620574951172, -707.9991455078125),
+    Vector3.new(-2941.4306640625, 91.80620574951172, -708.3591918945312),
+    Vector3.new(-2942.264892578125, 91.80620574951172, -705.732177734375)
+}
+
+local function isCloseEnough(pos1, pos2, tolerance)
+    return (pos1 - pos2).Magnitude <= tolerance
+end
+
+spawn(function()
+    while wait() do
+        pcall(function()
+            if _G.SST.Farm_Level then
+				if game:GetService("Players").LocalPlayer.PlayerGui.VoteStart.Enabled == true then
+					game:GetService("ReplicatedStorage").endpoints.client_to_server.vote_start:InvokeServer()
+				end
+                local units = workspace._UNITS
+                for _, position in ipairs(spawnPositionsFarm) do
+                    local isUnitPresent = false
+                    for _, unit in pairs(units:GetChildren()) do
+                        if unit:FindFirstChild("HumanoidRootPart") and isCloseEnough(unit.HumanoidRootPart.Position, position, 0.1) then
+                            isUnitPresent = true
+                            break
+                        end
+                    end
+                    
+                    -- หากไม่มี Unit ในตำแหน่งนี้ ให้วาง Unit
+                    if not isUnitPresent then
+                        local cframe = CFrame.new(position) * CFrame.Angles(0, 0, 0)
+                        spawnUnit:InvokeServer(unitId, cframe)
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+spawn(function()
+    while wait() do
+        pcall(function()
+            if _G.SST and _G.SST.Farm_Level then -- ตรวจสอบ _G.SST และ _G.SST.Farm_Sukuna
+                local units = workspace._UNITS:GetChildren()
+                for i, v in pairs(units) do
+                    if v:IsA("Model") and v:GetAttribute("range_stat") ~= nil then -- ตรวจสอบว่า unit เป็น Model และมี Attribute "range_stat"
+                        print("Pet: " .. v.Name) -- ใช้ v.Name เพื่อพิมพ์ชื่อ Model
+
+                        local up = {
+                            [1] = v -- ใช้ Instance โดยตรง
+                        }
+                        -- เรียกฟังก์ชัน sell_unit_ingame
+                        local success, err = pcall(function()
+                            game:GetService("ReplicatedStorage").endpoints.client_to_server.upgrade_unit_ingame:InvokeServer(unpack(up))
+                        end)
+
+                        if not success then
+                            warn("Error invoking sell_unit_ingame: " .. tostring(err))
+                        end
+
+                        wait(0) -- รอเล็กน้อยก่อนตรวจสอบ unit ถัดไป
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+Main:AddSeperatorLeft("Event")
+
+Main:AddToggleL("Auto Feed Easter",_G.SST.Feed_Easter,function(a)
+	Feed_Easter = a
+_G.SST.Feed_Easter = Feed_Easter
+SS()
+end)
+
+spawn(function()
+	while wait() do
+		pcall(function()
+			if _G.SST.Feed_Easter then
+				game:GetService("ReplicatedStorage").endpoints.client_to_server.feed_easter_meter:InvokeServer()
+				_G.SST.Feed_Easter = false
+			end
+		end)
+	end
+end)
+
+Main:AddToggleL("Auto Claim Easter",_G.SST.Claim_Easter,function(a)
+	Claim_Easter = a
+_G.SST.Claim_Easter = Claim_Easter
+SS()
+end)
+
+spawn(function()
+	while wait() do
+		pcall(function()
+			if _G.SST.Claim_Easter then
+				game:GetService("ReplicatedStorage").endpoints.client_to_server.claim_easter_meter:InvokeServer()
+			end
+		end)
+	end
+end)
+
+Main:AddSeperatorLeft("Gem")
+
+Main:AddToggleL("Auto Farm Gem",_G.SST.Farm_Gem,function(a)
+	Farm_Gem = a
+_G.SST.Farm_Gem = Farm_Gem
+SS()
+end)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+spawn(function()
+    while task.wait(0.5) do -- ปรับเวลาให้ลูปทำงานไม่ถี่เกินไป
+        local success, err = pcall(function()
+            if _G.SST and _G.SST.Farm_Gem then
+                -- ตรวจสอบ VoteStart ก่อนเรียกใช้งาน
+                if LocalPlayer.PlayerGui.VoteStart and LocalPlayer.PlayerGui.VoteStart.Enabled then
+                    ReplicatedStorage.endpoints.client_to_server.vote_start:InvokeServer()
+                end
+                
+                for _, Room in ipairs(workspace._LOBBIES.Story:GetChildren()) do
+                    if Room:FindFirstChild("Timer") and Room.Timer.Value == -1 then
+                        -- เตรียม arguments สำหรับล็อบบี้
+                        local args = {
+                            Room.Name,
+                            "aot_infinite",
+                            true,
+                            "Hard"
+                        }
+                        
+                        -- ตรวจสอบค่าก่อนเรียกใช้งาน
+                        print("Joining lobby:", args[1])
+                        
+                        -- Join lobby
+                        ReplicatedStorage.endpoints.client_to_server.request_join_lobby:InvokeServer(Room.Name)
+                        
+                        -- Lock level
+                        local lockSuccess, lockErr = pcall(function()
+                            ReplicatedStorage.endpoints.client_to_server.request_lock_level:InvokeServer(unpack(args))
+                        end)
+                        
+                        if not lockSuccess then
+                            warn("Error locking level:", lockErr)
+                        end
+                        
+                        -- Start game
+                        task.wait(1) -- ลดเวลารอให้น้อยลง
+                        local startSuccess, startErr = pcall(function()
+                            ReplicatedStorage.endpoints.client_to_server.request_start_game:InvokeServer(Room.Name)
+                        end)
+                        
+                        if not startSuccess then
+                            warn("Error starting game:", startErr)
+                        end
+                    end
+                end
+            end
+        end)
+
+        if not success then
+            warn("Error in Farm_Gem loop:", err)
+        end
+    end
+end)
+
+	Main:AddSeperatorLeft("Holiday Stars")
+
+	Main:AddToggleL("Auto Farm HolidayStars",_G.SST.Auto_Farm_HolidayStars,function(a)
+		Auto_Farm_HolidayStars = a
+		_G.SST.Auto_Farm_HolidayStars = Auto_Farm_HolidayStars
+		SS()
+	end)
+	
+	spawn(function()
+		while wait() do
+			pcall(function()
+				if _G.SST.Auto_Farm_HolidayStars then
+					if game:GetService("Players").LocalPlayer.PlayerGui.VoteStart.Enabled == true then
+						game:GetService("ReplicatedStorage").endpoints.client_to_server.vote_start:InvokeServer()
+					end
+					if workspace._EVENT_CHALLENGES.Lobbies._lobbytemplate_event3:FindFirstChild("Timer").Value == -1 then
+						game:GetService("ReplicatedStorage").endpoints.client_to_server.request_join_lobby:InvokeServer("_lobbytemplate_event3")
+					end
+				end
+			end)
+		end
+	end)
+
+Main:AddSeperatorLeft("Curse Key")
+
+Main:AddToggleL("Auto Farm Curse",_G.SST.Farm_Sukuna,function(a)
+	Farm_Sukuna = a
+_G.SST.Farm_Sukuna = Farm_Sukuna
+SS()
+end)
+
+local unitId = "{8bf8f990-cb29-4b70-b382-da807acd100d}"
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local spawnUnit = replicatedStorage.endpoints.client_to_server.spawn_unit
+
+local spawnPositions = {
+    Vector3.new(316.823, 125.597, -99.345),
+    Vector3.new(319.000, 125.597, -96.916),
+    Vector3.new(320.497, 125.597, -100.160),
+    Vector3.new(319.032, 125.597, -103.319)
+}
+
+local function isCloseEnough(pos1, pos2, tolerance)
+    return (pos1 - pos2).Magnitude <= tolerance
+end
+
+spawn(function()
+    while wait() do
+        pcall(function()
+            if _G.SST.Farm_Sukuna then
+				if game:GetService("Players").LocalPlayer.PlayerGui.VoteStart.Enabled == true then
+					game:GetService("ReplicatedStorage").endpoints.client_to_server.vote_start:InvokeServer()
+				end
+                local units = workspace._UNITS
+                for _, position in ipairs(spawnPositions) do
+                    local isUnitPresent = false
+                    for _, unit in pairs(units:GetChildren()) do
+                        if unit:FindFirstChild("HumanoidRootPart") and isCloseEnough(unit.HumanoidRootPart.Position, position, 0.1) then
+                            isUnitPresent = true
+                            break
+                        end
+                    end
+                    
+                    -- หากไม่มี Unit ในตำแหน่งนี้ ให้วาง Unit
+                    if not isUnitPresent then
+                        local cframe = CFrame.new(position) * CFrame.Angles(0, 0, 0)
+                        spawnUnit:InvokeServer(unitId, cframe)
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+spawn(function()
+    while wait() do
+        pcall(function()
+            if _G.SST and _G.SST.Farm_Sukuna then -- ตรวจสอบ _G.SST และ _G.SST.Farm_Sukuna
+                local units = workspace._UNITS:GetChildren()
+                for i, v in pairs(units) do
+                    if v:IsA("Model") and v:GetAttribute("range_stat") ~= nil then -- ตรวจสอบว่า unit เป็น Model และมี Attribute "range_stat"
+                        print("Pet: " .. v.Name) -- ใช้ v.Name เพื่อพิมพ์ชื่อ Model
+
+                        local up = {
+                            [1] = v -- ใช้ Instance โดยตรง
+                        }
+                        -- เรียกฟังก์ชัน sell_unit_ingame
+                        local success, err = pcall(function()
+                            game:GetService("ReplicatedStorage").endpoints.client_to_server.upgrade_unit_ingame:InvokeServer(unpack(up))
+                        end)
+
+                        if not success then
+                            warn("Error invoking sell_unit_ingame: " .. tostring(err))
+                        end
+
+                        wait(0) -- รอเล็กน้อยก่อนตรวจสอบ unit ถัดไป
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+Misc:AddSeperatorRight("Fps")
 local player = game:GetService("Players").LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local blackScreenUI = nil
@@ -2153,7 +2824,7 @@ end
 
 -- เปลี่ยนมาใช้ตัวแปรแทนการเก็บสถานะใน _G
 -- เพิ่มปุ่ม toggle (สมมติว่า Misc:AddToggleR เป็นฟังก์ชันจากระบบที่ใช้งานอยู่)
-Main:AddToggleR("Black Screen",_G.SST.Black_Screen, function(value)
+Misc:AddToggleR("Black Screen",_G.SST.Black_Screen, function(value)
     Black_Screen = value
 	_G.SST.Black_Screen = Black_Screen
     SS() -- ฟังก์ชันเพิ่มเติมที่คุณมีในระบบ
@@ -2167,183 +2838,468 @@ Main:AddToggleR("Black Screen",_G.SST.Black_Screen, function(value)
         toggleBlackScreen(false)
     end
 end)
-Main:AddToggleL("Farm Chest",_G.SST.Farm_Chest,function(a)
-    Farm_Chest = a
-_G.SST.Farm_Chest = Farm_Chest
+
+
+Misc:AddToggleR("Boost Fps",_G.SST.Boost_Fps,function(va)
+	Boost_Fps = va
+ _G.SST.Boost_Fps = Boost_Fps
+ SS()
+end)
+
+-- สร้าง Slider สำหรับการเลือก Frame Rate
+Misc:AddSliderRight("Select Frame Rate", 0, 240, _G.SST.Select_Farme_Rate, function(a)
+    Select_Farme_Rate = a -- ใช้ตัวแปร a แทนค่า Select_Farme_Rate
+	_G.SST.Select_Farme_Rate = Select_Farme_Rate
+    SS() -- ฟังก์ชันเพิ่มเติม
+end)
+
+-- เริ่มฟังก์ชัน spawn สำหรับการตั้งค่า FPS
+spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            if type(_G.SST.Select_Farme_Rate) == "number" and _G.SST.Select_Farme_Rate > 0 then
+                setfpscap(_G.SST.Select_Farme_Rate) -- ตั้งค่าความเร็วเฟรมตามค่า
+            end
+        end)
+    end
+end)
+
+
+Misc:AddSeperatorLeft("Misc")
+Misc:AddToggleL("Auto Rejoin [Kick]",_G.SST.Auto_Rejoin_Kick ,function(a)
+	Auto_Rejoin_Kick  = a
+	_G.SST.Auto_Rejoin_Kick = Auto_Rejoin_Kick
+	SS()
+end)
+spawn(function()
+	while wait() do
+		if _G.SST.Auto_Rejoin_Kick then
+			Auto_Rejoin_Kick = game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
+				if child.Name == 'ErrorPrompt' and child:FindFirstChild('MessageArea') and child.MessageArea:FindFirstChild("ErrorFrame") then
+					game:GetService("TeleportService"):Teleport(8304191830)
+				end
+			end)
+		end
+	end
+end)
+
+
+Misc:AddToggleL("Anti AFK", _G.SST.Anti_AFK, function(isEnabled)
+    Anti_AFK = isEnabled
+	_G.SST.Anti_AFK = Anti_AFK
+    SS()
+end)
+
+task.spawn(function()
+    while _G.AntiAFKEnabled and task.wait(300) do -- รันทุก 5 นาที
+        pcall(function()
+            local VirtualUser = game:GetService("VirtualUser")
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new(0, 0)) -- ส่งสัญญาณคลิกขวาจำลอง
+        end)
+    end
+end)
+
+
+
+	Check:AddSeperatorRight("WebHook")
+Check:AddTextboxRight("WebHook Link",_G.SST.WebHook_Link,true,function(a)
+	WebHook_Link = a
+		_G.SST.WebHook_Link = WebHook_Link
+
+	SS()
+end)
+Check:AddToggleR("Send WebHook",_G.SST.Sent_WebHook,function(a)
+	Sent_WebHook = a
+_G.SST.Sent_WebHook = Sent_WebHook
 SS()
 end)
 
-spawn(function()
-    local lastChest = nil
-    while wait() do
-        pcall(function()
-            if _G.SST.Farm_Chest then
-                -- ถ้า Chest อันเก่าหายไป หรือไม่มี ProximityPrompt แล้ว
-                if not lastChest or not lastChest.Parent or not lastChest:FindFirstChild("Circle.001") or not lastChest:FindFirstChild("Circle.001"):FindFirstChild("ProximityPrompt") then
-                    for i, v in pairs(workspace.FX:GetChildren()) do
-                        if v.Name == "Chest" then
-                            local circle = v:FindFirstChild("Circle.001")
-                            if circle then
-                                local prompt = circle:FindFirstChild("ProximityPrompt")
-                                if prompt then
-                                    lastChest = v -- จำ Chest อันที่กำลังฟาร์ม
-                                    TP(circle.CFrame) -- วาร์ปไปที่ Circle.001
-                                    wait(0.2) -- รอให้ตัวละครไปถึง
-                                    fireproximityprompt(prompt) -- กด ProximityPrompt
-                                    wait(0.5) -- หน่วงนิดนึงเพื่อไม่ให้ทำงานซ้ำเร็วเกิน
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end)
-
-Main:AddSeperatorLeft("Attack Aura")
-_G.SST.Distance_Aura = _G.SST.Distance_Aura or 70
-_G.SST.Attack_Aura = _G.SST.Attack_Aura or false
-
-Main:AddSliderLeft("Distance Aura", 1, 200, _G.SST.Distance_Aura, function(a)
-    _G.SST.Distance_Aura = a
-    SS()
-end)
-
-Main:AddToggleL("Attact Aura", _G.SST.Attact_Aura, function(a)
-    _G.SST.Attact_Aura = a
-    SS()
-end)
-
-local player = game.Players.LocalPlayer
-local replicatedStorage = game:GetService("ReplicatedStorage")
-local spawnedEntities = workspace:WaitForChild("SpawnedEntities")
-
-local character, rootPart
-
-local function updateCharacter()
-    character = player.Character or player.CharacterAdded:Wait()
-    rootPart = character:WaitForChild("HumanoidRootPart")
-end
-
-updateCharacter()
-player.CharacterAdded:Connect(updateCharacter)
-
-local function attackAll()
-    if not rootPart or not _G.SST.Attact_Aura then return end
-    
-    local maxDistance = _G.SST.Distance_Aura
-    local targets = table.create(#spawnedEntities:GetChildren())
-    
-    for _, entity in ipairs(spawnedEntities:GetChildren()) do
-        local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
-        local humanoid = entity:FindFirstChildOfClass("Humanoid")
-
-        if humanoidRootPart and humanoid and humanoid.Health > 0 then
-            if (humanoidRootPart.Position - rootPart.Position).Magnitude <= maxDistance then
-                targets[#targets + 1] = entity
-            end
-        end
-    end
-    
-    if #targets > 0 then
-        replicatedStorage.PlayerEvents.EntityHit:FireServer(unpack(targets))
-    end
-end
-
-task.spawn(function()
-    local runService = game:GetService("RunService")
-    runService.Heartbeat:Connect(function()
-        if _G.SST.Attact_Aura then
-            attackAll()
-        end
-    end)
-end)
-
-
-
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
 
-local spawnedEntities = workspace:FindFirstChild("SpawnedEntities")
-if not spawnedEntities then
-    warn("SpawnedEntities not found!")
-    return
+local function sendWebhook(Name, GemRewards, XpRewards, GameTime, player)
+    local url = _G.SST.WebHook_Link
+    if not url or url == "" then
+        warn("Invalid Webhook URL")
+        return
+    end
+
+    local fields = {}
+
+    -- Add Total field
+    table.insert(fields, {
+        ["name"] = "📊 Total 📊",
+        ["value"] = "```Name          : " .. Name ..
+                    "\nGem           : " .. player._stats.gem_amount.Value ..
+                    "\nGold          : " .. player._stats.gold_amount.Value ..
+                    "\nXP            : " .. player._stats.player_xp.Value ..
+                    "\nHolidayStars  : " .. player._stats._resourceHolidayStars.Value .. "```"
+    })
+
+    -- Add Time field
+    table.insert(fields, {
+        ["name"] = "⌛ Time ⌛",
+        ["value"] = "```" .. GameTime .. "```"
+    })
+
+    -- Add Rewards field if necessary
+    if GemRewards ~= "+99999" or XpRewards ~= "+99999 XP" then
+        table.insert(fields, {
+            ["name"] = "Rewards",
+            ["value"] = "```Gems: " .. GemRewards .. "   XP: " .. XpRewards .. "```"
+        })
+    end
+
+    -- Construct the webhook payload
+    local data = {
+        ["content"] = "",
+        ["embeds"] = {
+            {
+                ["author"] = { ["name"] = "ReBornxer Hub WebHook" },
+                ["type"] = "rich",
+                ["title"] = "[❄️CHRISTMAS + 💫RERELEASE + 🏆TOURNAMENT] AA",
+                ["color"] = tonumber(0x13da),
+                ["fields"] = fields
+            }
+        }
+    }
+
+    local jsonData = HttpService:JSONEncode(data)
+    local headers = { ["Content-Type"] = "application/json" }
+
+    -- Send the webhook request
+    local request = http_request or request or HttpPost or syn.request
+    if request then
+        local response = request({
+            Url = url,
+            Body = jsonData,
+            Method = "POST",
+            Headers = headers
+        })
+        if response.StatusCode ~= 200 then
+            warn("Failed to send webhook. Status Code: " .. response.StatusCode)
+        end
+    else
+        warn("HTTP request function not available.")
+    end
 end
 
--- ฟังก์ชันหามอนสเตอร์ที่มีเลือดมากกว่า 0 เท่านั้น
-local function getFirstMonster()
-    for _, entity in pairs(spawnedEntities:GetChildren()) do
-        if entity:IsA("Model") then
-            local humanoid = entity:FindFirstChildOfClass("Humanoid")
-            local rootPart = entity:FindFirstChild("HumanoidRootPart") or entity:FindFirstChild("HumanoidRootPartCollision")
+local debounce = false -- ตัวแปรป้องกันการส่งซ้ำ
 
-            if humanoid and humanoid.Health > 0 and rootPart then
-                return entity
+RunService.Heartbeat:Connect(function()
+    if not debounce then
+        debounce = true
+        pcall(function()
+            if _G.SST.Sent_WebHook then
+                local player = Players.LocalPlayer
+                local resultsUI = player.PlayerGui:FindFirstChild("ResultsUI")
+                
+                if resultsUI and resultsUI.Enabled then
+                    local Name = player.Name
+                    local GemRewards = resultsUI.Holder.LevelRewards.ScrollingFrame.GemReward.Main.Amount.Text
+                    local XpRewards = resultsUI.Holder.LevelRewards.ScrollingFrame.XPReward.Main.Amount.Text
+                    local GameTime = resultsUI.Holder.Middle.Timer.Text
+
+                    -- Reset the webhook flag ก่อนส่ง
+                    _G.SST.Sent_WebHook = false
+
+                    -- Call the function to send the webhook
+                    sendWebhook(Name, GemRewards, XpRewards, GameTime, player)
+                end
+            end
+        end)
+        task.wait(1) -- รอ 1 วินาทีป้องกันส่งซ้ำ
+        debounce = false
+    end
+end)
+
+
+-- เพิ่ม Separator
+Check:AddSeperatorLeft("Player")
+
+-- ชื่อผู้เล่น
+local NamePlayer = game.Players.LocalPlayer.Name
+Check:AddLabelLeft("Name : " .. NamePlayer)
+
+-- เช็ค Level ของผู้เล่น
+local LevelPlayer = nil
+pcall(function()
+    LevelPlayer = game:GetService("Players").LocalPlayer.PlayerGui.spawn_units.Lives.Main.Desc.Level.Text
+end)
+Check:AddLabelLeft("Level : " .. (LevelPlayer or "Loading..."))
+
+-- เช็ค XP ของผู้เล่น
+local ExpPlayer = nil
+pcall(function()
+    ExpPlayer = game:GetService("Players").LocalPlayer._stats.player_xp.Value
+end)
+Check:AddLabelLeft("Xp : " .. (ExpPlayer or "Loading..."))
+
+-- เช็ค BattlePass Level และ Furthest Room
+local BattlePassLevel = nil
+local FurthestRoom = nil
+pcall(function()
+    BattlePassLevel = game:GetService("Players").LocalPlayer.PlayerGui.BattlePass.Main.Level.V.Text
+    FurthestRoom = game:GetService("Players").LocalPlayer.PlayerGui.BattlePass.Main.FurthestRoom.V.Text
+end)
+Check:AddLabelLeft("BattlePassLevel : " .. (BattlePassLevel or "Loading...") .. "[" .. (FurthestRoom or "Loading...") .. "]")
+
+-- สร้าง Label สำหรับ Gems และ Gold
+local GemCheck = Check:AddLabelLeft("Gem : Loading...")
+local GoldCheck = Check:AddLabelLeft("Gold : Loading...")
+
+-- ลูปการอัปเดต Gems และ Gold
+spawn(function()
+    while wait(1) do -- ลดความถี่การอัปเดตเป็น 1 วินาทีเพื่อประหยัดทรัพยากร
+        pcall(function()
+            local GemAmount = game:GetService("Players").LocalPlayer._stats.gem_amount.Value
+            local GoldAmount = game:GetService("Players").LocalPlayer._stats.gold_amount.Value
+            GemCheck:Set("Gem : " .. GemAmount)
+            GoldCheck:Set("Gold : " .. GoldAmount)
+        end)
+    end
+end)
+
+
+local Boosted = false -- ตัวแปรสถานะเพื่อตรวจสอบว่ารันแล้วหรือไม่
+local RunService = game:GetService("RunService")
+
+local function optimizeSettings(player)
+    local settings = player:FindFirstChild("_settings")
+    if settings then
+        for _, property in ipairs({"disable_effects", "disable_kill_fx", "disable_other_fx", "low_quality", "low_quality_shadows", "low_quality_textures"}) do
+            local setting = settings:FindFirstChild(property)
+            if setting and setting:IsA("BoolValue") then
+                setting.Value = true
             end
         end
     end
-    return nil
 end
 
-Main:AddToggleL("TP Mon", _G.SST.TP_Mon, function(a)
-    TP_Mon = a
-    _G.SST.TP_Mon = TP_Mon
-    SS()
-end)
+local function optimizeTerrain(terrain)
+    terrain.WaterWaveSize = 0
+    terrain.WaterWaveSpeed = 0
+    terrain.WaterReflectance = 0
+    terrain.WaterTransparency = 0
+end
 
-spawn(function()
-    while task.wait(0) do
+local function optimizeLighting(lighting)
+    lighting.GlobalShadows = false
+    lighting.FogEnd = 9e9
+    lighting.Brightness = 0
+
+    for _, effect in ipairs(lighting:GetChildren()) do
+        if effect:IsA("BlurEffect") or effect:IsA("SunRaysEffect") 
+            or effect:IsA("ColorCorrectionEffect") or effect:IsA("BloomEffect") 
+            or effect:IsA("DepthOfFieldEffect") then
+            effect.Enabled = false
+        end
+    end
+end
+
+local function optimizePartsAndEffects(descendants)
+    for _, obj in ipairs(descendants) do
         pcall(function()
-            if _G.SST.TP_Mon then
-                local monster
-
-                -- ค้นหามอนสเตอร์ใหม่ทันทีที่ตัวปัจจุบันตาย
-                repeat
-                    monster = getFirstMonster()
-                    task.wait(0.03)
-                until not _G.SST.TP_Mon or (monster and monster:FindFirstChildOfClass("Humanoid") and (monster:FindFirstChildOfClass("Humanoid").Health > 0))
-
-                if monster then
-                    local monsterRoot = monster:FindFirstChild("HumanoidRootPart") or monster:FindFirstChild("HumanoidRootPartCollision")
-                    if monsterRoot then
-                        -- วาร์ปไปบนมอนสเตอร์ +10 หน่วย
-                        TP(monsterRoot.CFrame + Vector3.new(0, 10, 0))
-                    end
-                else
-                    warn("No monster found in SpawnedEntities!")
+            if obj:IsA("Part") or obj:IsA("Union") or obj:IsA("CornerWedgePart") 
+                or obj:IsA("TrussPart") or obj:IsA("MeshPart") then
+                obj.Material = Enum.Material.Plastic
+                obj.Reflectance = 0
+                obj.Transparency = 0.5 -- ทำให้จางลงแทนการลบ
+                if obj:IsA("MeshPart") then
+                    obj.TextureID = ""
                 end
+            elseif obj:IsA("Decal") or obj:IsA("Texture") then
+                obj.Transparency = 1 -- ซ่อนไว้แทนการลบ
+            elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
+                obj.Enabled = false
+            elseif obj:IsA("Fire") or obj:IsA("SpotLight") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
+                obj.Enabled = false
+            elseif obj:IsA("Sound") then
+                obj.Volume = 0 -- ปิดเสียงแทนการหยุดเล่น
+            end
+        end)
+    end
+end
+
+local function disableUnnecessaryAccessories(descendants)
+    for _, obj in ipairs(descendants) do
+        pcall(function()
+            if obj:IsA("Accessory") or obj:IsA("Clothing") then
+                obj.Parent = nil -- ซ่อนแทนการลบ
+            end
+        end)
+    end
+end
+
+RunService.Heartbeat:Connect(function()
+    if _G.SST and _G.SST.Boost_Fps and not Boosted then
+        Boosted = true
+        pcall(function()
+            local player = game:GetService("Players").LocalPlayer
+            if not player then return end
+
+            local playerGui = player:FindFirstChild("PlayerGui")
+
+            -- ปิดการใช้งาน MessageGui แทนการลบ
+            if playerGui and playerGui:FindFirstChild("MessageGui") then
+                pcall(function() playerGui.MessageGui.Enabled = false end)
+            end
+
+            -- ปรับค่าการตั้งค่า
+            optimizeSettings(player)
+
+            -- ปรับ Terrain และ Lighting
+            optimizeTerrain(workspace.Terrain)
+            optimizeLighting(game.Lighting)
+
+            -- ปรับแต่งวัตถุและเอฟเฟกต์
+            local descendants = game:GetDescendants()
+            optimizePartsAndEffects(descendants)
+            disableUnnecessaryAccessories(descendants)
+
+            -- ลดคุณภาพการแสดงผล
+            if settings and settings().Rendering then
+                settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
             end
         end)
     end
 end)
 
-Dungeon:AddToggleL("Auto Play Again",_G.SST.Auto_Play_Again,function(q)
-    Auto_Play_Again = q
-    _G.SST.Auto_Play_Again = Auto_Play_Again
-    SS()
-end)
+-- ฟังก์ชันเพื่อตรวจสอบและสร้างไฟล์ข้อมูลผู้เล่น
+-- รับบริการที่ต้องใช้
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
 
-spawn(function()
-    while wait() do
-        if _G.SST and _G.SST.Auto_Play_Again then
-            local player = game:GetService("Players").LocalPlayer
-            local gui = player:FindFirstChild("PlayerGui")
-            if gui then
-                local mainGui = gui:FindFirstChild("MainGui")
-                if mainGui then
-                    local frame = mainGui:FindFirstChild("InstanceCompleteFrame")
-                    if frame and frame.Visible then
-                        local args = {
-                            [1] = 69,
-                            [2] = "PlayAgain"
-                        }
-                        
-                        game:GetService("ReplicatedStorage").ReplicaRemoteEvents.Replica_ReplicaSignal:FireServer(unpack(args))
-                    end
-                end
-            end
+-- กำหนดชื่อไฟล์สำหรับบันทึกข้อมูลของผู้เล่น
+local fileName = "AA" .. localPlayer.Name .. ".json"
+
+-- ฟังก์ชันตรวจสอบว่าฟังก์ชัน `isfile()` ใช้งานได้หรือไม่
+local function safeIsFile(fileName)
+    local success, result = pcall(function() return isfile(fileName) end)
+    return success and result
+end
+
+-- ฟังก์ชันอ่านไฟล์โดยปลอดภัย
+local function safeReadFile(fileName)
+    local success, content = pcall(function() return readfile(fileName) end)
+    return success and content or nil
+end
+
+-- ฟังก์ชันเขียนไฟล์โดยปลอดภัย
+local function safeWriteFile(fileName, data)
+    local success, err = pcall(function() writefile(fileName, data) end)
+    if not success then
+        warn("เกิดข้อผิดพลาดในการเขียนไฟล์: " .. tostring(err))
+    end
+end
+
+-- ฟังก์ชันสร้างข้อมูลเริ่มต้นจาก UnitFrames
+local function createInitialData()
+    local data = {}
+
+    -- ตรวจสอบว่ามี PlayerGui และ UnitFrames หรือไม่
+    local playerGui = localPlayer:FindFirstChild("PlayerGui")
+    local unitFramesFolder = playerGui and playerGui:FindFirstChild("collection")
+        and playerGui.collection:FindFirstChild("grid")
+        and playerGui.collection.grid:FindFirstChild("List")
+        and playerGui.collection.grid.List:FindFirstChild("Outer")
+        and playerGui.collection.grid.List.Outer:FindFirstChild("UnitFrames")
+
+    if not unitFramesFolder then
+        warn("ไม่พบ UnitFrames ใน PlayerGui")
+        return data
+    end
+
+    for _, v in ipairs(unitFramesFolder:GetChildren()) do
+        if v.Name == "CollectionUnitFrame" and v:FindFirstChild("name") then
+            data[v.name.Text] = {
+                Equipped = v:FindFirstChild("EquippedList") and v.EquippedList:FindFirstChild("Equipped") and v.EquippedList.Equipped.Visible or false,
+                Level = v:FindFirstChild("Main") and v.Main:FindFirstChild("Level") and tonumber(v.Main.Level.Text) or 0,
+                UUID = v:FindFirstChild("_uuid") and v._uuid.Value or "Unknown",
+                Cost = v:FindFirstChild("Cost") and v.Cost:FindFirstChild("text") and tonumber(v.Cost.text.Text) or 0
+            }
         end
     end
-end)
+
+    return data
+end
+
+-- ฟังก์ชันตรวจสอบว่ามีไฟล์ข้อมูลอยู่หรือไม่ ถ้าไม่มีให้สร้างไฟล์ใหม่
+local function checkOrCreateFile()
+    if not safeIsFile(fileName) then
+        local initialData = createInitialData()
+        safeWriteFile(fileName, HttpService:JSONEncode(initialData))
+    end
+end
+
+-- ฟังก์ชันโหลดข้อมูลจากไฟล์ JSON ไปยัง _G.SeveST
+local function loadData()
+    if not safeIsFile(fileName) then
+        checkOrCreateFile()
+        return -- ไม่ต้องโหลดซ้ำหลังสร้างไฟล์
+    end
+
+    local fileContent = safeReadFile(fileName)
+    if fileContent then
+        local success, decoded = pcall(function()
+            return HttpService:JSONDecode(fileContent)
+        end)
+        if success and type(decoded) == "table" then
+            _G.SeveST = decoded
+        else
+            warn("ไม่สามารถถอดรหัสข้อมูลจากไฟล์ " .. fileName)
+            _G.SeveST = {}
+        end
+    end
+end
+
+-- ฟังก์ชันบันทึกข้อมูลจาก _G.SeveST กลับไปยังไฟล์ JSON
+local function saveData()
+    if type(_G.SeveST) == "table" and next(_G.SeveST) then
+        safeWriteFile(fileName, HttpService:JSONEncode(_G.SeveST))
+    else
+        warn("ไม่มีข้อมูลที่ต้องบันทึก")
+    end
+end
+
+-- ฟังก์ชันแสดงข้อมูลของ Unit ที่บันทึกไว้
+local function printData()
+    if _G.SeveST then
+        for name, unit in pairs(_G.SeveST) do
+            print(string.format(
+                "%s Uid: %s | Equipped: %s | Cost: %s | Level: %s",
+                name, unit.UUID, tostring(unit.Equipped), tostring(unit.Cost), tostring(unit.Level)
+            ))
+        end
+    else
+        warn("ไม่มีข้อมูลใน _G.SeveST")
+    end
+end
+
+-- ฟังก์ชันเรียกใช้งานข้อมูลจาก _G.SeveST
+local function useData()
+    if _G.SeveST then
+        for name, unit in pairs(_G.SeveST) do
+            if unit.Equipped then
+                print(name .. " is equipped and ready for use.")
+            end
+
+            local upgradeCost = unit.Cost * unit.Level
+            print("The upgrade cost for " .. name .. " is " .. upgradeCost)
+        end
+    else
+        warn("ไม่มีข้อมูลใน _G.SeveST")
+    end
+end
+
+-- เรียกใช้งานฟังก์ชันหลัก
+checkOrCreateFile()   -- ตรวจสอบและสร้างไฟล์ถ้ายังไม่มี
+loadData()            -- โหลดข้อมูลจากไฟล์ไปยัง _G.SeveST
+printData()           -- แสดงข้อมูลที่ได้
+useData()             -- เรียกใช้งานข้อมูลตามที่ต้องการ
+
+-- บันทึกข้อมูลใหม่หลังจากมีการเปลี่ยนแปลง
+saveData()
