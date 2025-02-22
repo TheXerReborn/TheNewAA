@@ -2243,7 +2243,7 @@ local function attackAll()
         local humanoidRootPart = entity:FindFirstChild("HumanoidRootPart")
         local humanoid = entity:FindFirstChildOfClass("Humanoid")
 
-        if humanoidRootPart and humanoid and humanoid.Health > 0 then
+        if humanoid and humanoid.Health > 0 then
             if (humanoidRootPart.Position - rootPart.Position).Magnitude <= maxDistance then
                 table.insert(targets, entity)
             end
